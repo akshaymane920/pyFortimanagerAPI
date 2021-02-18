@@ -12,6 +12,7 @@ class FortiManager:
     """
     This class will include all the methods used for executing the api calls on FortiManager.
     """
+
     def __init__(self, host, username="admin", password="admin", adom="root", verify=False):
         protocol = "https"
         self.host = host
@@ -291,7 +292,7 @@ class FortiManager:
         get_address_objects = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_address_objects.json()["result"]
 
-    def add_firewall_address_object(self, name, associated_interface="any", subnet=list, object_type=0,
+    def add_firewall_address_object(self, name, subnet: list, associated_interface="any", object_type=0,
                                     allow_routing=0):
         """
         Create an address object using provided info
@@ -305,22 +306,64 @@ class FortiManager:
         session = self.login()
         payload = {
             "method": "add",
-            "params": [
-                {
-                    "data": {
-                        "allow-routing": allow_routing,
-                        "associated-interface": associated_interface,
-                        "name": name,
-                        "subnet": subnet,
-                        "type": object_type
-                    },
-                    "url": f"pm/config/adom/{self.adom}/obj/firewall/address"
-                }
-            ],
-            "session": self.sessionid
-        }
-        add_address_objects = session.post(url=self.base_url, json=payload, verify=self.verify)
-        return add_address_objects.json()["result"]
+            "params": [{"data": {
+                "allow-routing": allow_routing,
+                "associated-interface": associated_interface,
+                "name": name,
+                "subnet": subnet,
+                "type": object_type},
+                "url": f"pm/config/adom/{self.adom}/obj/firewall/address"}],
+            "session": self.sessionid}
+
+        add_address_object = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return add_address_object.json()["result"]
+
+    def add_dynamic_object(self, name, device, subnet=list, comment=None):
+        """
+        Add per device mapping in address object.
+        :param name: name of the address object.
+        :param device: name of the device which is to be mapped in this object
+        :param subnet: subnet for device that is to be mapped in this object
+        :param comment: comment
+        :return: returns response of the request from FortiManager.
+        """
+        session = self.login()
+        add_obj = self.add_firewall_address_object(name, subnet=["0.0.0.0", "255.255.255.255"])
+        payload = {
+            "method": "add",
+            "params": [{"url": f"pm/config/adom/root/obj/firewall/address/{name}/dynamic_mapping",
+                        "data": [{"_scope": [{"name": f"{device}", "vdom": "root"}],
+                                  "subnet": subnet,
+                                  "comment": f"{comment}",
+                                  }]}],
+            "session": self.sessionid}
+        add_dynamic_obj = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return [add_obj, add_dynamic_obj.json()["result"]]
+
+    def update_dynamic_object(self, name, device, subnet: list, do="add", comment=None):
+        """
+        Update the per mapping settings of the address object.
+        :param name: name of the object that needs to be updated.
+        :param device: name of the device that needs to be added/updated
+        :param subnet: updated subnet of the device that needs to be mapped
+        :param do: if parameter do is set to "add" it will update it. If it is set to "remove" it will be deleted.
+        :param comment: add comment if you want.
+        :return: return result of the request from FortiManager.
+        """
+        session = self.login()
+        payload = {
+            "params": [{"url": f"pm/config/adom/root/obj/firewall/address/{name}/dynamic_mapping",
+                        "data": [{"_scope": [{"name": f"{device}", "vdom": "root"}],
+                                  "subnet": subnet,
+                                  "comment": f"{comment}",
+                                  }]}],
+            "session": self.sessionid}
+        if do == "add":
+            payload.update(method="update")
+        elif do == "remove":
+            payload.update(method="delete")
+        update_dynamic_obj = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return update_dynamic_obj.json()["result"]
 
     def update_firewall_address_object(self, name, **data):
         """
