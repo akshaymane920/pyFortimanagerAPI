@@ -19,7 +19,8 @@ class FortiManager:
         self.username = username
         self.password = password
         self.adom = adom
-        self.sessionid = "null"
+        self.sessionid = None
+        self.session = None
         self.verify = verify
         if not self.verify:
             protocol = "http"
@@ -33,25 +34,26 @@ class FortiManager:
         Log in to FortiManager with the details provided during object creation of this class
         :return: Session
         """
-        session = requests.session()
-        payload = \
-            {
-                "method": "exec",
-                "params":
-                    [
-                        {
-                            "data": {
-                                "passwd": self.password,
-                                "user": self.username
-                            },
-                            "url": "sys/login/user"
-                        }
-                    ],
-                "session": self.sessionid
-            }
-        login = session.post(url=self.base_url, json=payload, verify=self.verify)
-        self.sessionid = login.json()['session']
-        return session
+        if self.sessionid is None:
+            self.session = requests.session()
+            payload = \
+                {
+                    "method": "exec",
+                    "params":
+                        [
+                            {
+                                "data": {
+                                    "passwd": self.password,
+                                    "user": self.username
+                                },
+                                "url": "sys/login/user"
+                            }
+                        ],
+                    "session": self.sessionid
+                }
+            login = self.session.post(url=self.base_url, json=payload, verify=self.verify)
+            self.sessionid = login.json()['session']
+        return self.session
 
     def logout(self):
         """
