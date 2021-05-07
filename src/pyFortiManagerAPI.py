@@ -762,3 +762,6 @@ class FortiManager:
         payload.update({"session": self.sessionid})
         custom_api = session.post(url=self.base_url, json=payload, verify=self.verify)
         return custom_api.json()
+
+    def set_adom(self, adom=None):
+        self.adom = adom
