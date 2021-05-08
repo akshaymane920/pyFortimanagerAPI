@@ -13,8 +13,8 @@ class FortiManager:
     This class will include all the methods used for executing the api calls on FortiManager.
     """
 
-    def __init__(self, host, username="admin", password="admin", adom="root", verify=False):
-        protocol = "https"
+    def __init__(self, host, username="admin", password="admin", adom="root", protocol="https", verify=True):
+        self.protocol = protocol
         self.host = host
         self.username = username
         self.password = password
@@ -22,10 +22,8 @@ class FortiManager:
         self.sessionid = None
         self.session = None
         self.verify = verify
-        if not self.verify:
-            protocol = "http"
-        else:
-            protocol = "https"
+        if protocol == "http":
+            self.verify = False
         self.base_url = f"{protocol}://{self.host}/jsonrpc"
 
     # Login Method
