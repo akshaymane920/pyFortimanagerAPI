@@ -18,14 +18,17 @@ pip install pyFortiManagerAPI
 import pyFortiManagerAPI
 fortimngr = pyFortiManagerAPI.FortiManager(host="", 
                                            username="",
-                                           password="",
-                                           adom="")
+                                           password="")
 ```
 
+Required settings:
 - host: Management Ip address of your FortiManager
 - username/password: Specify your credentials to log into the device.
-- adom: Specify in which Adom you want to play.
 
+Optional settings:
+- adom: Default is adom=root.
+- protocol: Default is protocol=https. If set to protocol=http, then verify=False is set automatically.
+- verify: Default is verify=True. If your Fortimanager has a self-signed certificate, set verify=False.
 
 
 # User Operations : Adoms
@@ -39,9 +42,15 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 - ## Parameters
 * name: Can get specific adom using name as a filter.
 
+### 2) Set to different Adom
+```python
+>>> fortimngr.set_adom("adom_name")
+```
+- ## Parameters
+* name of the admon you want to switch to.
 
 # User Operations : Policy Package
-### 2) Get all the policy packages configured on FortiManager.
+### 3) Get all the policy packages configured on FortiManager.
 ```python
 >>> fortimngr.get_policy_packages()
 ```
@@ -52,7 +61,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 * name: Can get specific package using name as a filter.
 
 
-### 3) Add your own policy package in FortiManager.
+### 4) Add your own policy package in FortiManager.
 ```python
 >>> fortimngr.add_policy_package(name="TestPackage")
 ```
@@ -62,13 +71,13 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 # User Operations : Address Objects
 
-### 4) Get all address objects from FortiManager.
+### 5) Get all address objects from FortiManager.
 
 ```python
 >>> fortimngr.get_firewall_address_objects()
 ```
 
-### 5) Get specific address object from FortiManager using "name" Filter.
+### 6) Get specific address object from FortiManager using "name" Filter.
 
 ```python
 >>> fortimngr.get_firewall_address_objects(name="YourObjectName")
@@ -78,7 +87,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 * name: Specify object name that you want to see.
 
-### 6) Create an address object.
+### 7) Create an address object.
 
 ```python
 >>> fortimngr.add_firewall_address_object(name="TestObject",
@@ -93,7 +102,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 * associated_interface: Provide interface to which this object belongs if any. {Default is kept any}
 * subnet: Specify the subnet in a list format eg.["1.1.1.1", "255.255.255.255"]
 
-### 7) Update address object.
+### 8) Update address object.
 
 ```python
 >>> fortimngr.update_firewall_address_object(name="TestObject",
@@ -108,7 +117,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 * name: Enter the name of the object that needs to be updated
 * data: You can get the **kwargs parameters with "show_params_for_object_update()" method
 
-### 8) Delete address object.
+### 9) Delete address object.
 
 ```python
 >>> fortimngr.delete_firewall_address_object(object_name="TestObject")
@@ -122,13 +131,13 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 # User Operations : Address Groups
 
-### 9) Get all address groups.
+### 10) Get all address groups.
 
 ```python
 >>> fortimngr.get_address_groups()
 ```
 
-### 10) Get specific address group.
+### 11) Get specific address group.
 
 ```python
 >>> fortimngr.get_address_groups(name="TestGroup")
@@ -138,7 +147,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 * name: Specify the name the address group.
 
-### 11) Create your own address group.
+### 12) Create your own address group.
 
 ```python
 >>> fortimngr.add_address_group(name="Test_Group",
@@ -151,7 +160,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 * members: pass your object names as members in a list eg. ["TestObject1", "TestObject2"]
   > Note: An address group should consist atleast 1 member.
 
-### 12) Update the address group.
+### 13) Update the address group.
 
 ```python
 >>> fortimngr.update_address_group(name="Test_Group",
@@ -167,7 +176,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
   do="add" will add the object in the address group
   do="remove" will remove the object from address group
 
-### 13) Delete the address group.
+### 14) Delete the address group.
 
 ```python
 >>> fortimngr.delete_address_group(name="Test_group")
@@ -181,7 +190,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 # User Operations : Policies
 
-### 14) Get all the policies in your Policy Package.
+### 15) Get all the policies in your Policy Package.
 
 ```python
 >>> fortimngr.get_firewall_policies(policy_package_name="YourPolicyPackageName")
@@ -191,7 +200,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 * policy_package_name: Enter the policy package name.
 
-### 15) Get specific policiy in your Policy Package using PolicyID filter.
+### 16) Get specific policiy in your Policy Package using PolicyID filter.
 
 ```python
 >>> fortimngr.get_firewall_policies(policy_package_name="YourPolicyPackageName", policyid=3)
@@ -202,7 +211,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 * policy_package_name: Enter the policy package name.
 * policyid: Can filter and get the policy you want using policyID
 
-### 16) Create your own policy in your Policy Package.
+### 17) Create your own policy in your Policy Package.
 
 ```python
 >>> fortimngr.add_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -233,7 +242,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
                    logtraffic=1  Means Log Security Events
                    logtraffic=2  Means Log All Sessions
 
-### 17) Update the policy in your Policy Package.
+### 18) Update the policy in your Policy Package.
 
 ```python
 >>> fortimngr.update_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -249,7 +258,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 * policyid: Enter the Policy ID you want to edit
 * data: You can get the **kwargs parameters with "show_params_for_policy_update()" method
 
-### 18) Delete the policy in your Policy Package.
+### 19) Delete the policy in your Policy Package.
 
 ```python
 >>> fortimngr.delete_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -263,7 +272,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 
 
-### 19) Move Firewall Policy.
+### 20) Move Firewall Policy.
 ```python
 >>> fortimngr.move_firewall_policy(policy_package_name="LocalLab",
                                    move_policyid=10, 
@@ -280,7 +289,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 # User Operations : Installing the Policy Package.
 
-### 20) Installing the Policy Package.
+### 21) Installing the Policy Package.
 
 ```python
 >>> fortimngr.install_policy_package(package_name="Your Policy Package name")
@@ -295,7 +304,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 
 # Show Params for updation of Policies and Objects.
 
-### 21) Parameters for updating Address Object.
+### 22) Parameters for updating Address Object.
 ```python
 >>> fortimngr.show_params_for_object_update()
 ```
@@ -308,7 +317,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
         object_name(str)            : Address Name
         subnet[list]                : IP/Netmask
         object_type(int)            : Type
-### 22) Parameters for updating Policy. 
+### 23) Parameters for updating Policy.
 ```python
 >>> fortimngr.show_params_for_policy_update()
 ```
