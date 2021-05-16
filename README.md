@@ -1,6 +1,7 @@
 # pyFortiManagerAPI
 
 A Python wrapper for the FortiManager REST API.
+### *** Video Tutorial to use the package is available on [YouTube](https://www.youtube.com/watch?v=4o7-AYPwuSM) ***
 
 ## Installation
 
