@@ -13,18 +13,17 @@ class FortiManager:
     This class will include all the methods used for executing the api calls on FortiManager.
     """
 
-    def __init__(self, host, username="admin", password="admin", adom="root", verify=False):
-        protocol = "https"
+    def __init__(self, host, username="admin", password="admin", adom="root", protocol="https", verify=True):
+        self.protocol = protocol
         self.host = host
         self.username = username
         self.password = password
         self.adom = adom
-        self.sessionid = "null"
+        self.sessionid = None
+        self.session = None
         self.verify = verify
-        if not self.verify:
-            protocol = "http"
-        else:
-            protocol = "https"
+        if protocol == "http":
+            self.verify = False
         self.base_url = f"{protocol}://{self.host}/jsonrpc"
 
     # Login Method
@@ -33,25 +32,26 @@ class FortiManager:
         Log in to FortiManager with the details provided during object creation of this class
         :return: Session
         """
-        session = requests.session()
-        payload = \
-            {
-                "method": "exec",
-                "params":
-                    [
-                        {
-                            "data": {
-                                "passwd": self.password,
-                                "user": self.username
-                            },
-                            "url": "sys/login/user"
-                        }
-                    ],
-                "session": self.sessionid
-            }
-        login = session.post(url=self.base_url, json=payload, verify=self.verify)
-        self.sessionid = login.json()['session']
-        return session
+        if self.sessionid is None:
+            self.session = requests.session()
+            payload = \
+                {
+                    "method": "exec",
+                    "params":
+                        [
+                            {
+                                "data": {
+                                    "passwd": self.password,
+                                    "user": self.username
+                                },
+                                "url": "sys/login/user"
+                            }
+                        ],
+                    "session": self.sessionid
+                }
+            login = self.session.post(url=self.base_url, json=payload, verify=self.verify)
+            self.sessionid = login.json()['session']
+        return self.session
 
     def logout(self):
         """
@@ -760,3 +760,6 @@ class FortiManager:
         payload.update({"session": self.sessionid})
         custom_api = session.post(url=self.base_url, json=payload, verify=self.verify)
         return custom_api.json()
+
+    def set_adom(self, adom=None):
+        self.adom = adom
