@@ -514,6 +514,29 @@ class FortiManager:
         delete_address_group = session.post(url=self.base_url, json=payload, verify=False)
         return delete_address_group.json()["result"]
 
+   # Firewall Virtual IP objects
+    def get_firewall_vip_objects(self, name=False):
+        """
+        Get all the vip objects data stored in FortiManager
+        :return: Response of status code with data in JSON Format
+        """
+        url = f"pm/config/adom/{self.adom}/obj/firewall/vip"
+        if name:
+            url = f"pm/config/adom/{self.adom}/obj/firewall/vip/{name}"
+        session = self.login()
+        payload = \
+            {
+                "method": "get",
+                "params": [
+                    {
+                        "url": url
+                    }
+                ],
+                "session": self.sessionid
+            }
+        get_vip_objects = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_vip_objects.json()["result"]
+
     # Firewall Policies Methods
     def get_firewall_policies(self, policy_package_name="default", policyid=False):
         """
