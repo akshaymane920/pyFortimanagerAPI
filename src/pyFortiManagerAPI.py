@@ -96,7 +96,7 @@ class FortiManager:
                     ],
                 "session": self.sessionid
             }
-        get_adoms = session.post(url=self.base_url, json=payload, verify=False)
+        get_adoms = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_adoms.json()["result"]
 
     def get_devices(self):
@@ -106,7 +106,7 @@ class FortiManager:
         session = self.login()
         payload = {"method": "get", "params": [{"url": f"/dvmdb/adom/{self.adom}/device/"}]}
         payload.update({"session": self.sessionid})
-        get_devices = session.post(url=self.base_url, json=payload, verify=False)
+        get_devices = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_devices.json()
 
     def add_device(self, ip_address, username, password, name, description=False):
@@ -152,7 +152,7 @@ class FortiManager:
             ]
         }
         payload.update({"session": self.sessionid})
-        add_model_device = session.post(url=self.base_url, json=payload, verify=False)
+        add_model_device = session.post(url=self.base_url, json=payload, verify=self.verify)
         return add_model_device.json()["result"]
 
     # Policy Package Methods
@@ -177,7 +177,7 @@ class FortiManager:
                     ],
                 "session": self.sessionid
             }
-        get_packages = session.post(url=self.base_url, json=payload, verify=False)
+        get_packages = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_packages.json()["result"]
 
     def add_policy_package(self, name):
@@ -203,7 +203,7 @@ class FortiManager:
                     ],
                 "session": self.sessionid
             }
-        add_package = session.post(url=self.base_url, json=payload, verify=False)
+        add_package = session.post(url=self.base_url, json=payload, verify=self.verify)
         return add_package.json()["result"]
 
     def add_install_target(self, device_name, pkg_name, vdom="root"):
@@ -489,7 +489,7 @@ class FortiManager:
                 ],
                 "session": self.sessionid
             }
-        update_address_group = session.post(url=self.base_url, json=payload, verify=False)
+        update_address_group = session.post(url=self.base_url, json=payload, verify=self.verify)
         return update_address_group.json()["result"]
 
     def delete_address_group(self, name):
@@ -511,7 +511,7 @@ class FortiManager:
                 ],
                 "session": self.sessionid
             }
-        delete_address_group = session.post(url=self.base_url, json=payload, verify=False)
+        delete_address_group = session.post(url=self.base_url, json=payload, verify=self.verify)
         return delete_address_group.json()["result"]
 
     # Firewall Policies Methods
