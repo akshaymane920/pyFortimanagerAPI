@@ -188,10 +188,19 @@ Optional settings:
 * name: Specify the name of the address group you wish to delete
 
 ---
+# User Operations : VirtualIP Objects
+
+### 15) Get all VIP objects from FortiManager.
+
+```python
+>>> fortimngr.get_firewall_vip_objects()
+```
+
+---
 
 # User Operations : Policies
 
-### 15) Get all the policies in your Policy Package.
+### 16) Get all the policies in your Policy Package.
 
 ```python
 >>> fortimngr.get_firewall_policies(policy_package_name="YourPolicyPackageName")
@@ -201,7 +210,7 @@ Optional settings:
 
 * policy_package_name: Enter the policy package name.
 
-### 16) Get specific policiy in your Policy Package using PolicyID filter.
+### 17) Get specific policiy in your Policy Package using PolicyID filter.
 
 ```python
 >>> fortimngr.get_firewall_policies(policy_package_name="YourPolicyPackageName", policyid=3)
@@ -212,7 +221,7 @@ Optional settings:
 * policy_package_name: Enter the policy package name.
 * policyid: Can filter and get the policy you want using policyID
 
-### 17) Create your own policy in your Policy Package.
+### 18) Create your own policy in your Policy Package.
 
 ```python
 >>> fortimngr.add_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -243,7 +252,7 @@ Optional settings:
                    logtraffic=1  Means Log Security Events
                    logtraffic=2  Means Log All Sessions
 
-### 18) Update the policy in your Policy Package.
+### 19) Update the policy in your Policy Package.
 
 ```python
 >>> fortimngr.update_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -259,7 +268,7 @@ Optional settings:
 * policyid: Enter the Policy ID you want to edit
 * data: You can get the **kwargs parameters with "show_params_for_policy_update()" method
 
-### 19) Delete the policy in your Policy Package.
+### 20) Delete the policy in your Policy Package.
 
 ```python
 >>> fortimngr.delete_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -273,7 +282,7 @@ Optional settings:
 
 
 
-### 20) Move Firewall Policy.
+### 21) Move Firewall Policy.
 ```python
 >>> fortimngr.move_firewall_policy(policy_package_name="LocalLab",
                                    move_policyid=10, 
@@ -290,7 +299,7 @@ Optional settings:
 
 # User Operations : Installing the Policy Package.
 
-### 21) Installing the Policy Package.
+### 22) Installing the Policy Package.
 
 ```python
 >>> fortimngr.install_policy_package(package_name="Your Policy Package name")
@@ -305,7 +314,7 @@ Optional settings:
 
 # Show Params for updation of Policies and Objects.
 
-### 22) Parameters for updating Address Object.
+### 23) Parameters for updating Address Object.
 ```python
 >>> fortimngr.show_params_for_object_update()
 ```
@@ -318,7 +327,7 @@ Optional settings:
         object_name(str)            : Address Name
         subnet[list]                : IP/Netmask
         object_type(int)            : Type
-### 23) Parameters for updating Policy.
+### 24) Parameters for updating Policy.
 ```python
 >>> fortimngr.show_params_for_policy_update()
 ```
