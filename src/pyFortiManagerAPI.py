@@ -537,6 +537,47 @@ class FortiManager:
         get_vip_objects = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_vip_objects.json()["result"]
 
+    # Header
+    def get_global_header_policies(self, policy_package_name="default", policyid=False):
+        """
+        Get global header policies
+        """
+        url = f"pm/config/global/pkg/{policy_package_name}/global/header/policy"
+        if policyid:
+            url = url + str(policyid)
+        session = self.login()
+        payload = {
+            "method": "get",
+            "params": [
+                {
+                    "url": url
+                }
+            ],
+            "session": self.sessionid
+        }
+        get_global_header_policies = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_global_header_policies.json()["result"]
+
+    def get_firewall_header_policies(self, policy_package_name="default", policyid=False):
+        """
+        Get adom header policies
+        """
+        url = f"pm/config/adom/{self.adom}/obj/global/header/policy"
+        if policyid:
+            url = url + str(policyid)
+        session = self.login()
+        payload = {
+            "method": "get",
+            "params": [
+                {
+                    "url": url
+                }
+            ],
+            "session": self.sessionid
+        }
+        get_firewall_header_policies = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_firewall_header_policies.json()["result"]
+
     # Firewall Policies Methods
     def get_firewall_policies(self, policy_package_name="default", policyid=False):
         """
