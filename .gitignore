@@ -1,6 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 /venv
 /.idea
+__pycache__
 /tests
 /build
 /dist
