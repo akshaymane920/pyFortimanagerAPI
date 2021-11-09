@@ -1,6 +1,7 @@
 # pyFortiManagerAPI
 
 A Python wrapper for the FortiManager JSON RPC API.
+[![Upload Python Package](https://github.com/akshaymane920/pyFortimanagerAPI/actions/workflows/python-publish.yml/badge.svg)](https://github.com/akshaymane920/pyFortimanagerAPI/actions/workflows/python-publish.yml)
 ### *** Video Tutorial to use the package is available on [YouTube](https://www.youtube.com/watch?v=4o7-AYPwuSM) ***
 
 ## Installation
