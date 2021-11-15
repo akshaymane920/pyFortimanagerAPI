@@ -13,7 +13,8 @@ class FortiManager:
     This class will include all the methods used for executing the api calls on FortiManager.
     """
 
-    def __init__(self, host, username="admin", password="admin", adom="root", protocol="https", verify=True, proxies={}):
+    def __init__(self, host, username="admin", password="admin", adom="root", protocol="https", verify=True,
+                 proxies={}):
         self.protocol = protocol
         self.host = host
         self.username = username
@@ -33,7 +34,7 @@ class FortiManager:
         Log in to FortiManager with the details provided during object creation of this class
         :return: Session
         """
-        if self.sessionid is None:
+        if self.sessionid is None or self.session is None:
             self.session = requests.session()
             # check for explicit proxy handling
             # proxies = False means force not using proxies
@@ -42,6 +43,7 @@ class FortiManager:
             # otherwise use environment settings
             if self.proxies is False:
                 self.session.trust_env = False
+
             elif len(self.proxies) != 0:
                 self.session.proxies.update(self.proxies)
             else:
@@ -63,8 +65,14 @@ class FortiManager:
                 }
             login = self.session.post(
                 url=self.base_url, json=payload, verify=self.verify)
-            self.sessionid = login.json()['session']
-        return self.session
+            try:
+                self.sessionid = login.json()['session']
+                return self.session
+            except KeyError:
+                print(login.json())
+                exit()
+        else:
+            return self.session
 
     def logout(self):
         """
@@ -174,7 +182,7 @@ class FortiManager:
         return add_model_device.json()["result"]
 
     # Policy Package Methods
-    def get_policy_packages(self, name=False):
+    def get_policy_packages(self, name=False, ):
         """
         Get all the policy packages configured on FortiManager
         :param name: Can get specific package using name as a filter
@@ -550,7 +558,7 @@ class FortiManager:
             url=self.base_url, json=payload, verify=False)
         return delete_address_group.json()["result"]
 
-   # Firewall Virtual IP objects
+    # Firewall Virtual IP objects
     def get_firewall_vip_objects(self, name=False):
         """
         Get all the vip objects data stored in FortiManager
@@ -599,9 +607,9 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return get_firewall_policies.json()["result"]
 
-    def add_firewall_policy(self, policy_package_name="default", name=str, source_interface=str,
-                            source_address=str, destination_interface=str, destination_address=str,
-                            service=str, schedule="always", action=1, logtraffic=int, ):
+    def add_firewall_policy(self, policy_package_name: str, name: str, source_interface: str,
+                            source_address: str, destination_interface: str, destination_address: str,
+                            service: str, schedule="always", action=1, logtraffic=2):
         """
         Create your own policy in FortiManager using the instance parameters.
         :param policy_package_name: Enter the name of the policy package                eg. "default"
@@ -642,7 +650,7 @@ class FortiManager:
         }
         add_policy = session.post(
             url=self.base_url, json=payload, verify=self.verify)
-        return add_policy.json()["result"]
+        return add_policy.json()
 
     def update_firewall_policy(self, policy_package_name, policyid, **data):
         """
