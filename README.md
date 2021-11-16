@@ -1,6 +1,8 @@
 # pyFortiManagerAPI
 
-A Python wrapper for the FortiManager REST API.
+A Python wrapper for the FortiManager JSON RPC API.
+
+[![Upload Python Package](https://github.com/akshaymane920/pyFortimanagerAPI/actions/workflows/python-publish.yml/badge.svg)](https://github.com/akshaymane920/pyFortimanagerAPI/actions/workflows/python-publish.yml)
 ### *** Video Tutorial to use the package is available on [YouTube](https://www.youtube.com/watch?v=4o7-AYPwuSM) ***
 
 ## Installation
@@ -30,8 +32,13 @@ Optional settings:
 - adom: Default is adom=root.
 - protocol: Default is protocol=https. If set to protocol=http, then verify=False is set automatically.
 - verify: Default is verify=True. If your Fortimanager has a self-signed certificate, set verify=False.
-
-
+- proxies: Default is an empty dictionary (which means: use the environement variables). If you dont' want to use proxies, even if they are defined in your environment variables, then set 'proxies' to false. If you want to use other proxies than defined in your environment then you go like this:
+    ```python
+        proxies = {
+            'http': 'http://10.10.1.10:3128',
+            'https': 'http://10.10.1.10:1080'
+        }
+    ```
 # User Operations : Adoms
 ### 1) Get all adoms from the FortiManager.
 ```python

@@ -1,4 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 /venv
 /.idea
-/Tests
+__pycache__
+/tests
+/build
+/dist
+/src/pyFortiManagerAPI.egg-info
+pypi_token
