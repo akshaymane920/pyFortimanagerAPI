@@ -2,7 +2,7 @@
 
 A Python wrapper for the FortiManager JSON RPC API.
 
-[![Upload Python Package](https://github.com/akshaymane920/pyFortimanagerAPI/actions/workflows/python-publish.yml/badge.svg)](https://github.com/akshaymane920/pyFortimanagerAPI/actions/workflows/python-publish.yml)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues) [![Upload Python Package](https://github.com/akshaymane920/pyFortimanagerAPI/actions/workflows/python-publish.yml/badge.svg)](https://github.com/akshaymane920/pyFortimanagerAPI/actions/workflows/python-publish.yml)  
 ### *** Video Tutorial to use the package is available on [YouTube](https://www.youtube.com/watch?v=4o7-AYPwuSM) ***
 
 ## Installation
@@ -85,7 +85,7 @@ Optional settings:
 >>> fortimngr.get_firewall_address_objects()
 ```
 
-### 6) Get specific address object from FortiManager using "name" Filter.
+### 6) Get specific address object from FortiManager.
 
 ```python
 >>> fortimngr.get_firewall_address_objects(name="YourObjectName")
@@ -205,9 +205,58 @@ Optional settings:
 
 ---
 
+# User Operations : Add Devices
+
+### 16) Add devices to FortiManager.
+
+```python
+>>> fortimngr.add_device(ip_address="192.168.0.100", 
+                         username="admin", 
+                         password="", 
+                         name="FortiGateVM64", 
+                         description=False)
+```
+
+
+
+### 17) Get devices From FortiManager.
+
+```python
+>>> fortimngr.get_devices()
+```
+
+
+# User Operations : Meta Data
+
+### 18) Get Meta Data From FortiManager.
+```python
+>>> fortimngr.get_meta_data()
+```
+
+### 19) Add Meta Data to FortiManager.
+```python
+>>> fortimngr.add_meta_data(name="Meta_Data_1", 
+                            status=1)
+```
+
+## Parameters
+* :param name: name of the meta tag
+* :param status: status of meta tag whether it should be active(1) or disabled(0)
+
+### 20) Assign Meta Data to a FortiGate.
+```python
+>>> fortimngr.assign_meta_to_device(device="FortiGateVM64", 
+                                    meta_name="Meta_Data_1", 
+                                    meta_value="192.168.0.1/24")
+```
+## Parameters
+
+* :param device: name of the device
+* :param meta_name: name of the meta tag
+* :param meta_value: value of the meta tag
 # User Operations : Policies
 
-### 16) Get all the policies in your Policy Package.
+### 21) Get all the policies in your Policy Package.
 
 ```python
 >>> fortimngr.get_firewall_policies(policy_package_name="YourPolicyPackageName")
@@ -217,7 +266,7 @@ Optional settings:
 
 * policy_package_name: Enter the policy package name.
 
-### 17) Get specific policiy in your Policy Package using PolicyID filter.
+### 22) Get specific policiy in your Policy Package using PolicyID filter.
 
 ```python
 >>> fortimngr.get_firewall_policies(policy_package_name="YourPolicyPackageName", policyid=3)
@@ -228,7 +277,7 @@ Optional settings:
 * policy_package_name: Enter the policy package name.
 * policyid: Can filter and get the policy you want using policyID
 
-### 18) Create your own policy in your Policy Package.
+### 23) Create your own policy in your Policy Package.
 
 ```python
 >>> fortimngr.add_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -259,7 +308,7 @@ Optional settings:
                    logtraffic=1  Means Log Security Events
                    logtraffic=2  Means Log All Sessions
 
-### 19) Update the policy in your Policy Package.
+### 24) Update the policy in your Policy Package.
 
 ```python
 >>> fortimngr.update_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -275,7 +324,7 @@ Optional settings:
 * policyid: Enter the Policy ID you want to edit
 * data: You can get the **kwargs parameters with "show_params_for_policy_update()" method
 
-### 20) Delete the policy in your Policy Package.
+### 25) Delete the policy in your Policy Package.
 
 ```python
 >>> fortimngr.delete_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -289,7 +338,7 @@ Optional settings:
 
 
 
-### 21) Move Firewall Policy.
+### 26) Move Firewall Policy.
 ```python
 >>> fortimngr.move_firewall_policy(policy_package_name="LocalLab",
                                    move_policyid=10, 
@@ -306,22 +355,32 @@ Optional settings:
 
 # User Operations : Installing the Policy Package.
 
-### 22) Installing the Policy Package.
+### 27) Installing the Policy Package.
 
 ```python
 >>> fortimngr.install_policy_package(package_name="Your Policy Package name")
 
 ```
 
+
+### 28) Adding Installation Targets to a Policy Package.
+
+```python
+>>> fortimngr.add_install_target(device_name="FortiGateVM64", 
+                                 pkg_name="Test_Policy_Pakage", 
+                                 vdom="root")
+```
 - ## Parameters
 
-* package_name: Enter the package name you wish to install
+* :param device_name: name of the device
+* :param pkg_name: name of the policy package
+* :param vdom: name of the vdom (default=root)
 
 ---
 
 # Show Params for updation of Policies and Objects.
 
-### 23) Parameters for updating Address Object.
+### 29) Parameters for updating Address Object.
 ```python
 >>> fortimngr.show_params_for_object_update()
 ```
@@ -334,7 +393,7 @@ Optional settings:
         object_name(str)            : Address Name
         subnet[list]                : IP/Netmask
         object_type(int)            : Type
-### 24) Parameters for updating Policy.
+### 30) Parameters for updating Policy.
 ```python
 >>> fortimngr.show_params_for_policy_update()
 ```
@@ -352,10 +411,39 @@ Optional settings:
         logtraffic(int)                 : Log Traffic
         comment(str)                    : Comments
 
-## Future Tasks
-- This module is tested on Fortimanager v6.2.2 on "root" adom. It still doesn't support multiple Adoms. So I will try to get this working for Multiple adoms too.(This task is now achieved in version v0.1)
-- To update any object or firewall policies we need to pass data in Dictonary and this seems to be slightly complicated. I will try to simplify this too. (This task is now achieved in version v0.0.44) 
-- To get, add, update and delete adoms, devices and interfaces.
+# User Operations : Adding scripts in Fortimanager.
+### 31) Add a script in FortiManager's Database.
+```python
+>>> fortimngr.create_script(name="Test Script Template", 
+                            script_content="config system interface \n edit port 1 \n set ip 1.1.1.1/24", 
+                            target=0)
+```
+- ## Parameters
+
+* :param name: Specify a name for the script
+* :param script_content: write the cli commands
+* :param target: Set the target
+```
+      If Target = 0 than script runs on Device database
+      If Target = 1 than script runs on Remote FortiGate CLI
+      If Target = 2 than script runs on Policy package or Adom Database
+      Default value is set to 0
+```
+
+
+### 32) Get all scripts from FortiManager's Database.
+```python
+>>> fortimngr.get_all_scripts()
+```
+
+
+### 33) Delete a script from FortiManager's Database.
+```python
+>>> fortimngr.delete_script(name="Test Script Template")
+```
+- ## Parameters
+
+* :param name: Specify a name for the script tha need to be deleted.
 
 
 ## Contributing
