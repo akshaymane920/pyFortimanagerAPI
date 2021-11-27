@@ -72,7 +72,7 @@ class FortiManager:
                 self.sessionid = login.json()['session']
                 return self.session
             except KeyError:
-                print(login.json())
+                logging.error(login.json())
                 exit()
         else:
             return self.session
@@ -918,7 +918,6 @@ class FortiManager:
                                  "target": target, "type": 1}}],
                 "session": self.sessionid
             }
-        print(json.dumps(payload, indent=4))
         update_script = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return update_script.json()["result"]
