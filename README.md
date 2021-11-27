@@ -445,6 +445,55 @@ Optional settings:
 
 * :param name: Specify a name for the script tha need to be deleted.
 
+### 34) Run a script on FortiManager's Database/ FortiGate's Remote CLI.
+```python
+>>> fortimngr.run_script_on_single_device(script_name="test_script", 
+                                          device_name="FortiGate-VM64", 
+                                          vdom="root")
+```
+- ## Parameters
+
+* :param device_name: Specify device name.
+* :param vdom: Specify the Vdom
+* :param script_name: Specify the script name that should be executed on the specified devices
+
+
+```python
+>>> fortimngr.run_script_on_multiple_devices(script_name="test_script", 
+                                             devices=[{"name":"FortiGate-VM64", "vdom": "root"},
+                                                      {"name":"Test-FortiGate-VM64", "vdom": "global"},
+                                                      {"name":"Test-2-FortiGate-VM64", "vdom": "Test"}])
+```
+- ## Parameters
+
+* :param devices: Specify devices in a list of dictionaries.
+```
+              eg. devices=[{"name": "FortiGateVM64-1", "vdom": "root"},
+                           {"name": "FortiGateVM64-2", "vdom": "test"}
+                           {"name": "FortiGateVM64-3", "vdom": "root"}]
+
+```  
+* :param script_name: Specify the script name that should be executed on the specified devices
+
+
+
+### 35) Backup FortiGate's configuration from FortiManager and store it in TFTP server.
+```python
+>>> fortimngr.backup_config_of_fortiGate_to_tftp(tftp_ip="1.1.1.1", 
+                                                 path="/FortiGate_backups", 
+                                                 filename="FortiGate.conf", 
+                                                 device_name="FortiGate-VM64", vdom="root")
+
+```
+####A small function to back up configuration on FortiGates from FortiManager and store it in TFTP Server.
+This function leverages **_create_script()_** and **_run_script_on_single_device()_** methods from this package to backup the config.
+- ## Parameters
+
+* :param tftp_ip: Specify TFTP Server IP
+* :param path: Specify the path to store the config
+* :param filename: Specify the name of the backup file
+* :param device_name: Specify the name of the device
+* :param vdom: Specify the Vdom
 
 ## Contributing
 - Being new to Python and this being my first publish, to get this module fully working for all of us, the Pull requests are welcome.

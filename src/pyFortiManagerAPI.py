@@ -1,11 +1,11 @@
 __author__ = "Akshay Mane"
 
-import datetime
 import json
-
 import requests
 import urllib3
 import logging
+from typing import List
+from os.path import join, normpath
 
 # Disable insecure connections warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -939,3 +939,76 @@ class FortiManager:
         delete_script = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return delete_script.json()["result"]
+
+    def run_script_on_multiple_devices(self, script_name: str, devices: List[dict]):
+        """
+        Create a script template and store it on FortiManager
+        :param devices: Specify devices in a list of dictionaries.
+                eg. devices=[{"name": "FortiGateVM64-1", "vdom": "root"},
+                             {"name": "FortiGateVM64-2", "vdom": "test"}
+                             {"name": "FortiGateVM64-3", "vdom": "root"}]
+        :param script_name: Specify the script name that should be executed on the specified devices
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "exec",
+                "params": [{
+                    "data": {"adom": self.adom,
+                             "scope": devices,
+                             "script": script_name},
+                    "url": "/dvmdb/adom/root/script/execute"}],
+                "session": self.sessionid
+            }
+        run_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return run_script.json()["result"]
+
+    def run_script_on_single_device(self, script_name: str, device_name: str, vdom: str):
+        """
+        Create a script template and store it on FortiManager
+        :param device_name: Specify device name.
+        :param vdom: Specify the Vdom
+        :param script_name: Specify the script name that should be executed on the specified devices
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "exec",
+                "params": [{
+                    "data": {"adom": self.adom,
+                             "scope": {"name": device_name, "vdom": vdom},
+                             "script": script_name},
+                    "url": "/dvmdb/adom/root/script/execute"}],
+                "session": self.sessionid
+            }
+
+        run_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return run_script.json()["result"]
+
+    def backup_config_of_fortiGate_to_tftp(self, tftp_ip, path, filename, device_name, vdom="root"):
+        """
+        A small function to backup configuration on FortiGates from FortiManager and store it in TFTP Server.
+        :param tftp_ip: Specify TFTP Server IP
+        :param path: Specify the path to store the config
+        :param filename: Specify the name of the backup file
+        :param device_name: Specify the name of the device
+        :param vdom: Specify the Vdom
+        """
+        result = []
+        script_name = "backup_config_script"
+        full_path = normpath(join(path, filename)).replace("\\", "/")
+        cli_command = f"execute backup config tftp {full_path} {tftp_ip}"
+        logging.info("Creating a Script Template in FortiManager")
+        result.append(
+            {"backup_script_template_creation_result": self.create_script(name=script_name,
+                                                                          script_content=cli_command, target=1)})
+        result.append({"backup_script_execution_result": self.run_script_on_single_device(script_name=script_name,
+                                                                                          device_name=device_name,
+                                                                                          vdom=vdom
+                                                                                          ),
+                       "device": device_name, "vdom": vdom})
+        return json.dumps(result, indent=4)
