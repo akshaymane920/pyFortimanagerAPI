@@ -1,6 +1,10 @@
 __author__ = "Akshay Mane"
 
 import json
+import os
+import sys
+from functools import wraps
+
 import requests
 import urllib3
 import logging
@@ -37,6 +41,7 @@ class FortiManager:
         Log in to FortiManager with the details provided during object creation of this class
         :return: Session
         """
+
         if self.sessionid is None or self.session is None:
             self.session = requests.session()
             # check for explicit proxy handling
@@ -68,12 +73,12 @@ class FortiManager:
                 }
             login = self.session.post(
                 url=self.base_url, json=payload, verify=self.verify)
-            try:
-                self.sessionid = login.json()['session']
+            if login.json()["result"][0]["status"]["message"] == "No permission for the resource":
                 return self.session
-            except KeyError:
-                logging.error(login.json())
-                exit()
+            elif "session" in login.json():
+                self.sessionid = login.json()["session"]
+                return self.session
+
         else:
             return self.session
 
@@ -989,17 +994,17 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return run_script.json()["result"]
 
-    def backup_config_of_fortiGate_to_tftp(self, tftp_ip, path, filename, device_name, vdom="root"):
+    def backup_config_of_fortiGate_to_tftp(self, tftp_ip, path, script_name, filename, device_name, vdom="root"):
         """
         A small function to backup configuration on FortiGates from FortiManager and store it in TFTP Server.
         :param tftp_ip: Specify TFTP Server IP
         :param path: Specify the path to store the config
+        :param script_name: Specify the Script name
         :param filename: Specify the name of the backup file
         :param device_name: Specify the name of the device
         :param vdom: Specify the Vdom
         """
         result = []
-        script_name = "backup_config_script"
         full_path = normpath(join(path, filename)).replace("\\", "/")
         cli_command = f"execute backup config tftp {full_path} {tftp_ip}"
         logging.info("Creating a Script Template in FortiManager")
@@ -1011,4 +1016,4 @@ class FortiManager:
                                                                                           vdom=vdom
                                                                                           ),
                        "device": device_name, "vdom": vdom})
-        return json.dumps(result, indent=4)
+        return result
