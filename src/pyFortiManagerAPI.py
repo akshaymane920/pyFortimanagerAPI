@@ -1,8 +1,15 @@
 __author__ = "Akshay Mane"
 
+import json
+import os
+import sys
+from functools import wraps
+
 import requests
 import urllib3
 import logging
+from typing import List
+from os.path import join, normpath
 
 # Disable insecure connections warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -34,6 +41,7 @@ class FortiManager:
         Log in to FortiManager with the details provided during object creation of this class
         :return: Session
         """
+
         if self.sessionid is None or self.session is None:
             self.session = requests.session()
             # check for explicit proxy handling
@@ -65,12 +73,12 @@ class FortiManager:
                 }
             login = self.session.post(
                 url=self.base_url, json=payload, verify=self.verify)
-            try:
-                self.sessionid = login.json()['session']
+            if login.json()["result"][0]["status"]["message"] == "No permission for the resource":
                 return self.session
-            except KeyError:
-                print(login.json())
-                exit()
+            elif "session" in login.json():
+                self.sessionid = login.json()["session"]
+                return self.session
+
         else:
             return self.session
 
@@ -234,7 +242,7 @@ class FortiManager:
             url=self.base_url, json=payload, verify=False)
         return add_package.json()["result"]
 
-    def add_install_target(self, device_name, pkg_name, vdom="root"):
+    def add_install_target(self, device_name, pkg_name, vdom: str = "root"):
         """
         Add a device to installation target list of the policy package
         :param device_name: name of the device
@@ -880,3 +888,173 @@ class FortiManager:
 
     def set_adom(self, adom=None):
         self.adom = adom
+
+    # Scripts api calls
+    def create_script(self, name: str, script_content: str, target: int = 0):
+        """
+        Create a script template and store it on FortiManager
+        :param name: Specify a name for the script
+        :param script_content: write the cli commands
+        :param target:
+                If Target = 0 than script runs on Device database
+                If Target = 1 than script runs on Remote FortiGate CLI
+                If Target = 2 than script runs on Policy package or Adom Database
+        Default value is set to 0
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "add",
+                "params": [{"url": f"/dvmdb/adom/{self.adom}/script/",
+                            "data": {"name": name, "content": script_content, "target": target, "type": 1}}],
+                "session": self.sessionid
+            }
+        create_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return create_script.json()["result"]
+
+    def get_all_scripts(self):
+        """
+        Get all script templates from FortiManager
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "get",
+                "params": [{"url": f"/dvmdb/adom/{self.adom}/script/"}],
+                "session": self.sessionid
+            }
+        create_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return create_script.json()["result"]
+
+    def update_script(self, oid: int, name: str, script_content: str, target: int = 0):
+        """
+        Create a script template and store it on FortiManager
+        :param oid: Specify the script OID which needs to be updated
+        :param name: Specify a name for the script
+        :param script_content: write the cli commands
+        :param target:
+                If Target = 0 than script runs on Device database
+                If Target = 1 than script runs on Remote FortiGate CLI
+                If Target = 2 than script runs on Policy package or Adom Database
+        Default value is set to 0
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "update",
+                "params": [{"url": f"/dvmdb/adom/{self.adom}/script/",
+                            "data":
+                                {"content": script_content,
+                                 "desc": "",
+                                 "filter_build": -1,
+                                 "filter_device": 0,
+                                 "filter_hostname": "",
+                                 "filter_ostype": 0,
+                                 "filter_osver": -1,
+                                 "filter_platform": "",
+                                 "filter_serial": "",
+                                 "name": name,
+                                 "oid": oid,
+                                 "script_schedule": None,
+                                 "target": target, "type": 1}}],
+                "session": self.sessionid
+            }
+        update_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return update_script.json()["result"]
+
+    def delete_script(self, name: str):
+        """
+        Create a script template and store it on FortiManager
+        :param name: Specify the script name which needs to be deleted
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "delete",
+                "params": [{"url": f"/dvmdb/adom/{self.adom}/script/", "confirm": 1,
+                            "filter": ["name", "in", name]}],
+                "session": self.sessionid
+            }
+        delete_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return delete_script.json()["result"]
+
+    def run_script_on_multiple_devices(self, script_name: str, devices: List[dict]):
+        """
+        Create a script template and store it on FortiManager
+        :param devices: Specify devices in a list of dictionaries.
+                eg. devices=[{"name": "FortiGateVM64-1", "vdom": "root"},
+                             {"name": "FortiGateVM64-2", "vdom": "test"}
+                             {"name": "FortiGateVM64-3", "vdom": "root"}]
+        :param script_name: Specify the script name that should be executed on the specified devices
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "exec",
+                "params": [{
+                    "data": {"adom": self.adom,
+                             "scope": devices,
+                             "script": script_name},
+                    "url": "/dvmdb/adom/root/script/execute"}],
+                "session": self.sessionid
+            }
+        run_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return run_script.json()["result"]
+
+    def run_script_on_single_device(self, script_name: str, device_name: str, vdom: str):
+        """
+        Create a script template and store it on FortiManager
+        :param device_name: Specify device name.
+        :param vdom: Specify the Vdom
+        :param script_name: Specify the script name that should be executed on the specified devices
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "exec",
+                "params": [{
+                    "data": {"adom": self.adom,
+                             "scope": {"name": device_name, "vdom": vdom},
+                             "script": script_name},
+                    "url": "/dvmdb/adom/root/script/execute"}],
+                "session": self.sessionid
+            }
+
+        run_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return run_script.json()["result"]
+
+    def backup_config_of_fortiGate_to_tftp(self, tftp_ip, path, script_name, filename, device_name, vdom="root"):
+        """
+        A small function to backup configuration on FortiGates from FortiManager and store it in TFTP Server.
+        :param tftp_ip: Specify TFTP Server IP
+        :param path: Specify the path to store the config
+        :param script_name: Specify the Script name
+        :param filename: Specify the name of the backup file
+        :param device_name: Specify the name of the device
+        :param vdom: Specify the Vdom
+        """
+        result = []
+        full_path = normpath(join(path, filename)).replace("\\", "/")
+        cli_command = f"execute backup config tftp {full_path} {tftp_ip}"
+        logging.info("Creating a Script Template in FortiManager")
+        result.append(
+            {"backup_script_template_creation_result": self.create_script(name=script_name,
+                                                                          script_content=cli_command, target=1)})
+        result.append({"backup_script_execution_result": self.run_script_on_single_device(script_name=script_name,
+                                                                                          device_name=device_name,
+                                                                                          vdom=vdom
+                                                                                          ),
+                       "device": device_name, "vdom": vdom})
+        return result
