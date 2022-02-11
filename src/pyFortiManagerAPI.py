@@ -617,7 +617,7 @@ class FortiManager:
 
     def add_firewall_policy(self, policy_package_name: str, name: str, source_interface: str,
                             source_address: str, destination_interface: str, destination_address: str,
-                            service: str, schedule="always", action=1, logtraffic=2):
+                            service: str, nat: str, schedule="always", action=1, logtraffic=2):
         """
         Create your own policy in FortiManager using the instance parameters.
         :param policy_package_name: Enter the name of the policy package                eg. "default"
@@ -627,6 +627,7 @@ class FortiManager:
         :param destination_interface: Enter the source interface in a string format     eg. "port2"
         :param destination_address: Enter the dst. address object name                  eg. "WAN_100.25.1.63_32"
         :param service: Enter the service you want to permit or deny in string          eg. "ALL_TCP"
+        :param nat: Enter enable or disable for nat in a string format                  eg. 'disable'
         :param schedule: Schedule time is kept 'always' as default.
         :param action: Permit(1) or Deny(0) the traffic. Default is set to Permit.
         :param logtraffic: Specify if you need to log all traffic or specific in int format.
@@ -649,7 +650,8 @@ class FortiManager:
                         "service": service,
                         "srcaddr": source_address,
                         "srcintf": source_interface,
-                        "action": action
+                        "action": action,
+                        "nat": nat
                     },
                     "url": f"pm/config/adom/{self.adom}/pkg/{policy_package_name}/firewall/policy/"
                 }
