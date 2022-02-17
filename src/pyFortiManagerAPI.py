@@ -617,7 +617,7 @@ class FortiManager:
 
     def add_firewall_policy(self, policy_package_name: str, name: str, source_interface: str,
                             source_address: str, destination_interface: str, destination_address: str,
-                            service: str, nat: str, schedule="always", action=1, logtraffic=2):
+                            service: str, nat='disable', schedule="always", action=1, logtraffic=2):
         """
         Create your own policy in FortiManager using the instance parameters.
         :param policy_package_name: Enter the name of the policy package                eg. "default"
