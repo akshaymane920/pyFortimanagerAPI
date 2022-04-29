@@ -157,7 +157,7 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return add_device.json()
 
-    def add_model_device(self, device_name, serial_no, username="admin", password="",os_ver=6, mr=4,os_type="fos",platform=""):
+    def add_model_device(self, name, serial_no, username="admin", password="",os_ver=6, mr=4,os_type="fos",platform=""):
         # remove nonblocking from flags. With non-blocking the returned status looks like this even when the job failed, 
         # since the creation status of the job is returned:
         # [{'data': {'pid': 20172, 'taskid': 3194}, 'status': {'code': 0, 'message': 'OK'}, 'url': 'dvm/cmd/add/device'}]
@@ -176,7 +176,7 @@ class FortiManager:
                             "create_task"
                         ],
                         "device": {
-                            "name": device_name,
+                            "name": name,
                             "adm_usr": username,
                             "adm_pass": password,
                             "flags": 67371040,
