@@ -158,6 +158,12 @@ class FortiManager:
         return add_device.json()
 
     def add_model_device(self, device_name, serial_no, username="admin", password="",os_ver=6, mr=4,os_type="fos",platform=""):
+        # remove nonblocking from flags. With non-blocking the returned status looks like this even when the job failed, 
+        # since the creation status of the job is returned:
+        # [{'data': {'pid': 20172, 'taskid': 3194}, 'status': {'code': 0, 'message': 'OK'}, 'url': 'dvm/cmd/add/device'}]
+        #
+        # without nonblocking the failure reason is returned: 
+        # [{'status': {'code': -20010, 'message': 'Serial number already in use'}, 'url': 'dvm/cmd/add/device'}]
         session = self.login()
         payload = {
             "method": "exec",
@@ -167,8 +173,7 @@ class FortiManager:
                     "data": {
                         "adom": self.adom,
                         "flags": [
-                            "create_task", 
-                            "nonblocking"
+                            "create_task"
                         ],
                         "device": {
                             "name": device_name,
