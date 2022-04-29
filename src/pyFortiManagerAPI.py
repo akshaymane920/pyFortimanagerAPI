@@ -157,7 +157,7 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return add_device.json()
 
-    def add_model_device(self, device_name, serial_no, username="admin", password=""):
+    def add_model_device(self, device_name, serial_no, username="admin", password="",os_ver=6, mr=4,os_type="fos",platform=""):
         session = self.login()
         payload = {
             "method": "exec",
@@ -167,7 +167,7 @@ class FortiManager:
                     "data": {
                         "adom": self.adom,
                         "flags": [
-                            "create_task",
+                            "create_task", 
                             "nonblocking"
                         ],
                         "device": {
@@ -176,9 +176,12 @@ class FortiManager:
                             "adm_pass": password,
                             "flags": 67371040,
                             "sn": serial_no,
-                            "platform_str": "FortiGate-VM64",
-                            "os_ver": 6,
-                            "mr": 2
+                            "platform_str": platform                             
+                            "os_ver": os_ver,
+                            "mr": mr,
+                            "os_type": os_type,
+                            "mgmt_mode": "fmg",
+                            "device_action": "add_model",
                         }
                     }
                 }
