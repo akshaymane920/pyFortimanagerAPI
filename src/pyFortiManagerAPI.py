@@ -181,7 +181,7 @@ class FortiManager:
                             "adm_pass": password,
                             "flags": 67371040,
                             "sn": serial_no,
-                            "platform_str": platform                             
+                            "platform_str": platform,                             
                             "os_ver": os_ver,
                             "mr": mr,
                             "os_type": os_type,
