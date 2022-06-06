@@ -209,6 +209,8 @@ Optional settings:
 
 ### 16) Add devices to FortiManager.
 
+Add an existing device:
+
 ```python
 >>> fortimngr.add_device(ip_address="192.168.0.100", 
                          username="admin", 
@@ -217,7 +219,25 @@ Optional settings:
                          description=False)
 ```
 
+or model a device that is to be deployed:
 
+```python
+>>> fortimngr.add_model_device(serial_no="FGTxxxxxxxx", 
+                         name="FortiGateVM64")
+                         username="admin", 
+                         password="", 
+```
+Required arguments:
+* serial_no
+* name
+
+Optional arguments:
+* username (default=admin)
+* password (default="")
+* os_type (default="fos")
+* os_ver (default=6)
+* mr (default=4)
+* platform_str (default "", "FortiGate-VM64" for virtual Fortigate)
 
 ### 17) Get devices From FortiManager.
 
