@@ -319,7 +319,7 @@ class FortiManager:
             self.base_url, json=payload, verify=self.verify)
         return assign_meta.json()
 
-    def assign_meta_to_device_vdom(self, device, meta_name, meta_value, vdom):
+    def assign_meta_to_device_vdom(self, device, vdom, meta_name, meta_value):
         """
         Assign a meta tag to the device
         :param device: name of the device
