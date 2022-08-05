@@ -157,7 +157,8 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return add_device.json()
 
-    def add_model_device(self, name, serial_no, username="admin", password="",os_ver=6, mr=4,os_type="fos",platform=""):
+    def add_model_device(self, name, serial_no, username="admin", password="", os_ver=6, mr=4, os_type="fos",
+                         platform=""):
         # remove nonblocking from flags. With non-blocking the returned status looks like this even when the job failed, 
         # since the creation status of the job is returned:
         # [{'data': {'pid': 20172, 'taskid': 3194}, 'status': {'code': 0, 'message': 'OK'}, 'url': 'dvm/cmd/add/device'}]
@@ -181,7 +182,7 @@ class FortiManager:
                             "adm_pass": password,
                             "flags": 67371040,
                             "sn": serial_no,
-                            "platform_str": platform,                             
+                            "platform_str": platform,
                             "os_ver": os_ver,
                             "mr": mr,
                             "os_type": os_type,
@@ -317,6 +318,24 @@ class FortiManager:
         assign_meta = session.post(
             self.base_url, json=payload, verify=self.verify)
         return assign_meta.json()
+
+    def assign_meta_to_device_vdom(self, device, meta_name, meta_value, vdom):
+        """
+        Assign a meta tag to the device
+        :param device: name of the device
+        :param vdom:  Specify the Vdom
+        :param meta_name: name of the meta tag
+        :param meta_value: value of the meta tag
+        :return: returns response from FortiManager API whether the request was successful or not.!
+        """
+        session = self.login()
+        payload = {"method": "update",
+                   "params": [{"url": f"/dvmdb/adom/root/device/{device}/vdom/{vdom}",
+                               "data": {"name": f"{device}", "meta fields": {f"{meta_name}": f"{meta_value}"}}}]}
+        payload.update({"session": self.sessionid})
+        assign_meta = session.post(
+            self.base_url, json=payload, verify=self.verify)
+        return assign_meta_vdom.json()
 
     # Firewall Object Methods
     def get_firewall_address_objects(self, name=False):

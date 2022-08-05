@@ -276,7 +276,22 @@ Optional arguments:
 * :param meta_value: value of the meta tag
 # User Operations : Policies
 
-### 21) Get all the policies in your Policy Package.
+### 21) Assign Meta Data to a FortiGate VDOM.
+```python
+>>> fortimngr.assign_meta_to_device_vdom(device="FortiGateVM64",
+                                         vdom="root",
+                                         meta_name="Meta_Data_1",
+                                         meta_value="192.168.0.1/24")
+```
+## Parameters
+
+* :param device: name of the device
+* :param vdom: Specify the Vdom
+* :param meta_name: name of the meta tag
+* :param meta_value: value of the meta tag
+# User Operations : Policies
+
+### 22) Get all the policies in your Policy Package.
 
 ```python
 >>> fortimngr.get_firewall_policies(policy_package_name="YourPolicyPackageName")
@@ -286,7 +301,7 @@ Optional arguments:
 
 * policy_package_name: Enter the policy package name.
 
-### 22) Get specific policiy in your Policy Package using PolicyID filter.
+### 23) Get specific policiy in your Policy Package using PolicyID filter.
 
 ```python
 >>> fortimngr.get_firewall_policies(policy_package_name="YourPolicyPackageName", policyid=3)
@@ -297,7 +312,7 @@ Optional arguments:
 * policy_package_name: Enter the policy package name.
 * policyid: Can filter and get the policy you want using policyID
 
-### 23) Create your own policy in your Policy Package.
+### 24) Create your own policy in your Policy Package.
 
 ```python
 >>> fortimngr.add_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -328,7 +343,7 @@ Optional arguments:
                    logtraffic=1  Means Log Security Events
                    logtraffic=2  Means Log All Sessions
 
-### 24) Update the policy in your Policy Package.
+### 25) Update the policy in your Policy Package.
 
 ```python
 >>> fortimngr.update_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -344,7 +359,7 @@ Optional arguments:
 * policyid: Enter the Policy ID you want to edit
 * data: You can get the **kwargs parameters with "show_params_for_policy_update()" method
 
-### 25) Delete the policy in your Policy Package.
+### 26) Delete the policy in your Policy Package.
 
 ```python
 >>> fortimngr.delete_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -358,7 +373,7 @@ Optional arguments:
 
 
 
-### 26) Move Firewall Policy.
+### 27) Move Firewall Policy.
 ```python
 >>> fortimngr.move_firewall_policy(policy_package_name="LocalLab",
                                    move_policyid=10, 
@@ -375,7 +390,7 @@ Optional arguments:
 
 # User Operations : Installing the Policy Package.
 
-### 27) Installing the Policy Package.
+### 28) Installing the Policy Package.
 
 ```python
 >>> fortimngr.install_policy_package(package_name="Your Policy Package name")
@@ -383,7 +398,7 @@ Optional arguments:
 ```
 
 
-### 28) Adding Installation Targets to a Policy Package.
+### 29) Adding Installation Targets to a Policy Package.
 
 ```python
 >>> fortimngr.add_install_target(device_name="FortiGateVM64", 
@@ -400,7 +415,7 @@ Optional arguments:
 
 # Show Params for updation of Policies and Objects.
 
-### 29) Parameters for updating Address Object.
+### 30) Parameters for updating Address Object.
 ```python
 >>> fortimngr.show_params_for_object_update()
 ```
@@ -413,7 +428,7 @@ Optional arguments:
         object_name(str)            : Address Name
         subnet[list]                : IP/Netmask
         object_type(int)            : Type
-### 30) Parameters for updating Policy.
+### 31) Parameters for updating Policy.
 ```python
 >>> fortimngr.show_params_for_policy_update()
 ```
@@ -432,7 +447,7 @@ Optional arguments:
         comment(str)                    : Comments
 
 # User Operations : Adding scripts in Fortimanager.
-### 31) Add a script in FortiManager's Database.
+### 32) Add a script in FortiManager's Database.
 ```python
 >>> fortimngr.create_script(name="Test Script Template", 
                             script_content="config system interface \n edit port 1 \n set ip 1.1.1.1/24", 
@@ -451,13 +466,13 @@ Optional arguments:
 ```
 
 
-### 32) Get all scripts from FortiManager's Database.
+### 33) Get all scripts from FortiManager's Database.
 ```python
 >>> fortimngr.get_all_scripts()
 ```
 
 
-### 33) Delete a script from FortiManager's Database.
+### 34) Delete a script from FortiManager's Database.
 ```python
 >>> fortimngr.delete_script(name="Test Script Template")
 ```
@@ -465,7 +480,7 @@ Optional arguments:
 
 * :param name: Specify a name for the script tha need to be deleted.
 
-### 34) Run a script on FortiManager's Database/ FortiGate's Remote CLI.
+### 35) Run a script on FortiManager's Database/ FortiGate's Remote CLI.
 ```python
 >>> fortimngr.run_script_on_single_device(script_name="test_script", 
                                           device_name="FortiGate-VM64", 
@@ -497,7 +512,7 @@ Optional arguments:
 
 
 
-### 35) Backup FortiGate's configuration from FortiManager and store it in TFTP server.
+### 36) Backup FortiGate's configuration from FortiManager and store it in TFTP server.
 ```python
 >>> fortimngr.backup_config_of_fortiGate_to_tftp(tftp_ip="1.1.1.1", 
                                                  path="/FortiGate_backups", 
