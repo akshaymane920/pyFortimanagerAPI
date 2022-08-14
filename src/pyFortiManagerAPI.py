@@ -318,6 +318,24 @@ class FortiManager:
             self.base_url, json=payload, verify=self.verify)
         return assign_meta.json()
 
+    def assign_meta_to_device_vdom(self, device, vdom, meta_name, meta_value):
+        """
+        Assign a meta tag to the device
+        :param device: name of the device
+        :param vdom: Specify the Vdom
+        :param meta_name: name of the meta tag
+        :param meta_value: value of the meta tag
+        :return: returns response from FortiManager API whether the request was successful or not.!
+        """
+        session = self.login()
+        payload = {"method": "update",
+                   "params": [{"url": f"/dvmdb/adom/root/device/{device}/vdom/{vdom}",
+                               "data": {"name": f"{device}", "meta fields": {f"{meta_name}": f"{meta_value}"}}}]}
+        payload.update({"session": self.sessionid})
+        assign_meta_vdom = session.post(
+            self.base_url, json=payload, verify=self.verify)
+        return assign_meta_vdom.json()
+
     # Firewall Object Methods
     def get_firewall_address_objects(self, name=False):
         """
