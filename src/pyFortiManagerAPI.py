@@ -635,6 +635,34 @@ class FortiManager:
         get_interfaces = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_interfaces.json()["result"]
 
+    # Services
+    def get_services(self):
+        """
+                Get interface details from the devices.
+                :param device: Specify name of the device.
+                """
+        session = self.login()
+        payload = \
+            {"method": "get",
+             "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/service/custom/Custom_Service_1"}]}
+
+        payload.update(session=self.sessionid)
+        services = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return services.json()["result"]
+
+    def get_service(self, name):
+        """
+        Get interface details from the devices.
+        :param name: Specify name of the device.
+        """
+        session = self.login()
+        payload = \
+            {"method": "get", "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/service/custom/{name}"}]}
+
+        payload.update(session=self.sessionid)
+        service = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return service.json()["result"]
+
     # Firewall Policies Methods
     def get_firewall_policies(self, policy_package_name="default", policyid=False):
         """
