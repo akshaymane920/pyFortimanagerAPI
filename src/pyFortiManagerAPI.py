@@ -157,7 +157,8 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return add_device.json()
 
-    def add_model_device(self, name, serial_no, username="admin", password="",os_ver=6, mr=4,os_type="fos",platform=""):
+    def add_model_device(self, name, serial_no, username="admin", password="", os_ver=6, mr=4, os_type="fos",
+                         platform=""):
         # remove nonblocking from flags. With non-blocking the returned status looks like this even when the job failed, 
         # since the creation status of the job is returned:
         # [{'data': {'pid': 20172, 'taskid': 3194}, 'status': {'code': 0, 'message': 'OK'}, 'url': 'dvm/cmd/add/device'}]
@@ -181,7 +182,7 @@ class FortiManager:
                             "adm_pass": password,
                             "flags": 67371040,
                             "sn": serial_no,
-                            "platform_str": platform,                             
+                            "platform_str": platform,
                             "os_ver": os_ver,
                             "mr": mr,
                             "os_type": os_type,
@@ -615,6 +616,24 @@ class FortiManager:
         get_vip_objects = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return get_vip_objects.json()["result"]
+
+    # Firewall Interfaces
+    def get_device_interfaces(self, device):
+        """
+        Get interface details from the devices.
+        :param device: Specify name of the device.
+        """
+        session = self.login()
+        payload = \
+            {
+                "method": "exec",
+                "params": [
+                    {"url": "sys/proxy/json",
+                     "data": {"target": [f"adom/{self.adom}/device/{device}"], "action": "get",
+                              "resource": "/api/v2/monitor/system/interface/select?&global=1&include_vlan=1"}}]}
+        payload.update(session=self.sessionid)
+        get_interfaces = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_interfaces.json()["result"]
 
     # Firewall Policies Methods
     def get_firewall_policies(self, policy_package_name="default", policyid=False):
