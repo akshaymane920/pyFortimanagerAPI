@@ -687,6 +687,23 @@ class FortiManager:
         get_firewall_policies = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return get_firewall_policies.json()["result"]
+	
+    def get_dhcp(self, device):
+        """
+        Get dhcp details from the devices.
+        :param device: Specify name of the device.
+        """
+        session = self.login()
+        payload = \
+            {
+                "method": "exec",
+                "params": [
+                    {"url": "sys/proxy/json",
+                     "data": {"target": [f"adom/{self.adom}/device/{device}"], "action": "get",
+                              "resource": "/api/v2/monitor/system/dhcp/select?&vdom=root&ipv6=true&scope=global"}}]}
+        payload.update(session=self.sessionid)
+        get_interfaces = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_interfaces.json()["result"] 
 
     def add_firewall_policy(self, policy_package_name: str, name: str, source_interface: str,
                             source_address: str, destination_interface: str, destination_address: str,
