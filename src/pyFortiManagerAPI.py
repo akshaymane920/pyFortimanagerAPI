@@ -386,7 +386,6 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return get_address_objects.json()["result"]
 
-
     def add_firewall_address_object(self, name, subnet: list, associated_interface="any", object_type=0,
                                     allow_routing=0):
         """
@@ -1183,6 +1182,28 @@ class FortiManager:
         source_address(str)             : Source Address
         destination_interface(str)      : Destination Interface
         destination_address(str)        : Destination Address
+        service(str)                    : Service
+        schedule(str)                   : Schedule
+        action(int)                     : Action
+        logtraffic(int)                 : Log Traffic
+        comment(str)                    : Comments
+        """
+        return docs
+
+    @staticmethod
+    def show_params_for_policy_v6_update():
+        docs = \
+            """
+        Parameters to create/update Policy with v6 address objects:
+
+        PARAMETERS                       FIREWALL POLICY SETTINGS
+        name(str)                       : Name
+        source_interface(str)           : Incoming Interface
+        source_address(str|list)        : Source Address Object or List of Address Object
+        source_address6(str|list)       : Source Address v6 or List
+        destination_interface(str)      : Destination Interface
+        destination_address(str|list)   : Destination Address or List of Address Object
+        destination_address6(str|list)  : Destination Address v6 or List
         service(str)                    : Service
         schedule(str)                   : Schedule
         action(int)                     : Action
