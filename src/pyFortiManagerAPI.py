@@ -361,6 +361,31 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return get_address_objects.json()["result"]
 
+    # Firewall Object v6 Methods
+    def get_firewall_address_v6_objects(self, name=False):
+        """
+        Get all the address v6 objects data stored in FortiManager
+        :return: Response of status code with data in JSON Format
+        """
+        url = f"pm/config/adom/{self.adom}/obj/firewall/address6"
+        if name:
+            url = f"pm/config/adom/{self.adom}/obj/firewall/address6/{name}"
+        session = self.login()
+        payload = \
+            {
+                "method": "get",
+                "params": [
+                    {
+                        "url": url
+                    }
+                ],
+                "session": self.sessionid
+            }
+        get_address_objects = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return get_address_objects.json()["result"]
+
+
     def add_firewall_address_object(self, name, subnet: list, associated_interface="any", object_type=0,
                                     allow_routing=0):
         """
@@ -382,6 +407,28 @@ class FortiManager:
                 "subnet": subnet,
                 "type": object_type},
                 "url": f"pm/config/adom/{self.adom}/obj/firewall/address"}],
+            "session": self.sessionid}
+
+        add_address_object = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return add_address_object.json()["result"]
+    
+    def add_firewall_address_v6_object(self, name, subnet6: str, object_type=0):
+        """
+        Create an address object using provided info
+        :param name: Enter object name that is to be created        
+        :param subnet: Enter the subnet in a string format "200x:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx/"128"
+        :param object_type:
+        :return: Response of status code with data in JSON Format
+        """
+        session = self.login()
+        payload = {
+            "method": "add",
+            "params": [{"data": {                                
+                "name": name,
+                "ip6": subnet6,
+                "type": object_type},
+                "url": f"pm/config/adom/{self.adom}/obj/firewall/address6"}],
             "session": self.sessionid}
 
         add_address_object = session.post(
@@ -463,6 +510,31 @@ class FortiManager:
             url=self.base_url, data=payload, verify=self.verify)
         return update_firewall_object.json()["result"]
 
+    def update_firewall_address_v6_object(self, name, **data):
+        """
+        Get the name of the address object and update it with your data
+        :param name: Enter the name of the object that needs to be updated
+        :param data: You can get the **kwargs parameters with "show_params_for_object_v6_update()" method
+        :return: Response of status code with data in JSON Format
+        """
+        data = self.make_data(_for="object", **data)
+        session = self.login()
+        payload = \
+            {
+                "method": "update",
+                "params": [
+                    {
+                        "data": data,
+                        "url": f"pm/config/adom/{self.adom}/obj/firewall/address6/{name}"
+                    }
+                ],
+                "session": self.sessionid
+            }
+        payload = repr(payload)
+        update_firewall_object = session.post(
+            url=self.base_url, data=payload, verify=self.verify)
+        return update_firewall_object.json()["result"]
+
     def delete_firewall_address_object(self, object_name):
         """
         Delete the address object if no longer needed using object name
@@ -476,6 +548,27 @@ class FortiManager:
                 "params": [
                     {
                         "url": f"pm/config/adom/{self.adom}/obj/firewall/address/{object_name}"
+                    }
+                ],
+                "session": self.sessionid
+            }
+        delete_address_object = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return delete_address_object.json()["result"]
+
+    def delete_firewall_address_v6_object(self, object_name):
+        """
+        Delete the address object if no longer needed using object name
+        :param object_name: Enter the Object name you want to delete
+        :return: Response of status code with data in JSON Format
+        """
+        session = self.login()
+        payload = \
+            {
+                "method": "delete",
+                "params": [
+                    {
+                        "url": f"pm/config/adom/{self.adom}/obj/firewall/address6/{object_name}"
                     }
                 ],
                 "session": self.sessionid
@@ -508,7 +601,31 @@ class FortiManager:
         get_address_group = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return get_address_group.json()["result"]
-
+    
+    def get_address_v6_groups(self, name=False):
+        """
+        Get the address groups created in your FortiManager
+        :param name: You can filter out the specific address group which you want to see
+        :return: Response of status code with data in JSON Format
+        """
+        session = self.login()
+        url = f"pm/config/adom/{self.adom}/obj/firewall/addrgrp6"
+        if name:
+            url = f"pm/config/adom/{self.adom}/obj/firewall/addrgrp6/{name}"
+        payload = \
+            {
+                "method": "get",
+                "params": [
+                    {
+                        "url": url
+                    }
+                ],
+                "session": self.sessionid
+            }
+        get_address_group = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return get_address_group.json()["result"]
+    
     def add_address_group(self, name, members=list):
         """
         Create your own group with just 2 parameters
@@ -534,7 +651,33 @@ class FortiManager:
         add_address_group = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return add_address_group.json()["result"]
-
+    
+    def add_address_v6_group(self, name, members=list):
+        """
+        Create your own group with just 2 parameters
+        :param name: Enter the name of the address group                eg."Test_Group"
+        :param members: pass your object names as members in a list     eg. ["LAN_10.1.1.0_24, "INTERNET"]
+        :return: Response of status code with data in JSON Format
+        """
+        session = self.login()
+        payload = \
+            {
+                "method": "add",
+                "params": [
+                    {
+                        "data": {
+                            "name": name,
+                            "member": members,
+                        },
+                        "url": f"pm/config/adom/{self.adom}/obj/firewall/addrgrp6"
+                    }
+                ],
+                "session": self.sessionid
+            }
+        add_address_group = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return add_address_group.json()["result"]
+    
     def update_address_group(self, name, object_name, do="add"):
         """
         Update Members of the Address group
@@ -570,6 +713,41 @@ class FortiManager:
             url=self.base_url, json=payload, verify=False)
         return update_address_group.json()["result"]
 
+    def update_address_v6_group(self, name, object_name, do="add"):
+        """
+        Update Members of the Address group
+        :param name: Specify the name of the Address group you want to update
+        :param object_name: Specify name of the object you wish to update(add/remove) in Members List
+        :param do: Specify if you want to add or remove the object from the members list
+                    do="add"    will add the object in the address group
+                    do="remove" will remove the object from address group
+        :return: Response of status code with data in JSON Format
+        """
+        session = self.login()
+        get_addr_v6_group = self.get_address_v6_groups(name=name)
+        members = get_addr_v6_group[0]['data']['member']
+        if do == "add":
+            members.append(object_name)
+        elif do == "remove":
+            members.remove(object_name)
+
+        payload = \
+            {
+                "method": "update",
+                "params": [
+                    {
+                        "data": {
+                            "member": members,
+                        },
+                        "url": f"pm/config/adom/{self.adom}/obj/firewall/addrgrp6/{name}"
+                    }
+                ],
+                "session": self.sessionid
+            }
+        update_address_group = session.post(
+            url=self.base_url, json=payload, verify=False)
+        return update_address_group.json()["result"]
+
     def delete_address_group(self, name):
         """
         Delete the Address group if no longer needed
@@ -585,6 +763,29 @@ class FortiManager:
                         "data": {
                         },
                         "url": f"pm/config/adom/{self.adom}/obj/firewall/addrgrp/{name}"
+                    }
+                ],
+                "session": self.sessionid
+            }
+        delete_address_group = session.post(
+            url=self.base_url, json=payload, verify=False)
+        return delete_address_group.json()["result"]
+
+    def delete_address_v6_group(self, name):
+        """
+        Delete the Address group if no longer needed
+        :param name: Specify the name of the address you wish to delete
+        :return: Response of status code with data in JSON Format
+        """
+        session = self.login()
+        payload = \
+            {
+                "method": "delete",
+                "params": [
+                    {
+                        "data": {
+                        },
+                        "url": f"pm/config/adom/{self.adom}/obj/firewall/addrgrp6/{name}"
                     }
                 ],
                 "session": self.sessionid
@@ -900,6 +1101,20 @@ class FortiManager:
         comment(str)                : Comments
         object_name(str)            : Address Name
         subnet[list]                : IP/Netmask
+        object_type(int)            : Type
+        """
+        return docs
+
+    @staticmethod
+    def show_params_for_object_v6_update():
+        docs = \
+            """
+        Parameters to create/update address object:
+
+        PARAMETERS                   FIREWALL OBJECT SETTINGS
+        comment(str)                : Comments
+        object_name(str)            : Address Name
+        subnet(str)                 : IP/Netmask
         object_type(int)            : Type
         """
         return docs
