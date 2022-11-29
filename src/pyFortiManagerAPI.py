@@ -1,4 +1,5 @@
 __author__ = "Akshay Mane"
+__author__ = "Mathieu Millet"
 
 import json
 import os
@@ -8,7 +9,7 @@ from functools import wraps
 import requests
 import urllib3
 import logging
-from typing import List
+from typing import List, Any
 from os.path import join, normpath
 
 # Disable insecure connections warnings
@@ -940,6 +941,57 @@ class FortiManager:
                         "schedule": schedule,
                         "service": service,
                         "srcaddr": source_address,
+                        "srcintf": source_interface,
+                        "action": action,
+                        "nat": nat
+                    },
+                    "url": f"pm/config/adom/{self.adom}/pkg/{policy_package_name}/firewall/policy/"
+                }
+            ],
+            "session": self.sessionid
+        }
+        add_policy = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return add_policy.json()
+
+    def add_firewall_policy_with_v6(self, policy_package_name: str, name: str, source_interface: str,
+                            source_address: Any, source_address6: Any, destination_interface: str, destination_address: Any, destination_address6: Any,
+                            service: str, nat='disable', schedule="always", action=1, logtraffic=2):
+        """
+        Create your own policy in FortiManager using the instance parameters.
+        :param policy_package_name: Enter the name of the policy package                eg. "default"
+        :param name: Enter the policy name in a string format                           eg. "Test Policy"
+        :param source_interface: Enter the source interface in a string format          eg. "port1"
+        :param source_address: Enter the src. address object name in string format or in a list Format      eg. "LAN_10.1.1.0_24" or ["LAN_10.1.1.0_24", "LAN_10.2.2.0_24"]
+        :param source_address6: Enter the src. address v6 object name in string format or in a list Format      eg. "LAN_200x-000-" or ["LAN_2001-000", "LAN_2002-1000"]
+        :param destination_interface: Enter the source interface in a string format     eg. "port2"
+        :param destination_address: Enter the dst. address object name in string or list format                  eg. "WAN_100.25.1.63_32" or ["WAN1", "WAN2"]
+        :param destination_address6: Enter the dst. address object name in string or list format                  eg. "WANv6_200a-200a-" or or ["WAN1v6", "WAN2v6"]
+        :param service: Enter the service you want to permit or deny in string          eg. "ALL_TCP"
+        :param nat: Enter enable or disable for nat in a string format                  eg. 'disable'
+        :param schedule: Schedule time is kept 'always' as default.
+        :param action: Permit(1) or Deny(0) the traffic. Default is set to Permit.
+        :param logtraffic: Specify if you need to log all traffic or specific in int format.
+                            logtraffic=0: Means No Log
+                            logtraffic=1 Means Log Security Events
+                            logtraffic=2 Means Log All Sessions
+        :return: Response of status code with data in JSON Format
+        """
+        session = self.login()
+        payload = {
+            "method": "add",
+            "params": [
+                {
+                    "data": {
+                        "dstaddr": destination_address,
+                        "dstaddr6" : destination_address6,
+                        "dstintf": destination_interface,
+                        "logtraffic": logtraffic,
+                        "name": name,
+                        "schedule": schedule,
+                        "service": service,
+                        "srcaddr": source_address,
+                        "srcaddr6" : source_address6,
                         "srcintf": source_interface,
                         "action": action,
                         "nat": nat
