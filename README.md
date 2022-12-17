@@ -85,10 +85,17 @@ Optional settings:
 >>> fortimngr.get_firewall_address_objects()
 ```
 
+### 5bis) Get all v6 address objects from FortiManager.
+
+```python
+>>> fortimngr.get_firewall_address_v6_objects()
+```
+
 ### 6) Get specific address object from FortiManager.
 
 ```python
 >>> fortimngr.get_firewall_address_objects(name="YourObjectName")
+>>> fortimngr.get_firewall_address_v6_objects(name="YourObjectName")
 ```
 
 - ## Parameters
@@ -110,6 +117,20 @@ Optional settings:
 * associated_interface: Provide interface to which this object belongs if any. {Default is kept any}
 * subnet: Specify the subnet in a list format eg.["1.1.1.1", "255.255.255.255"]
 
+### 7bis) Create an v6 address object.
+
+```python
+>>> fortimngr.add_firewall_address_v6_object(name="TestObject",
+                                          subnet6="2001:0001:0001::2/128"]
+                                          )
+```
+
+- ## Parameters
+
+* name: Specify object name that is to be created
+* associated_interface: Provide interface to which this object belongs if any. {Default is kept any}
+* subnet: Specify the subnet in a list format eg.["1.1.1.1", "255.255.255.255"]
+* subnet6 : Specify the subnet IPv6 in a string format eg. "2001:0001::1/128"
 ### 8) Update address object.
 
 ```python
@@ -118,12 +139,16 @@ Optional settings:
                                              comment="Updated using API",
                                              subnet=["2.2.2.2","255.255.255.255"]
                                              )
-```
 
+>>> fortimngr.update_firewall_address_v6_object(name="TestObject",
+                                             comment="Updated using API",
+                                             subnet6="2001:0001::1/128"
+                                             )
+```
 - ## Parameters
 
 * name: Enter the name of the object that needs to be updated
-* data: You can get the **kwargs parameters with "show_params_for_object_update()" method
+* data: You can get the **kwargs parameters with "show_params_for_object_update()" method or "
 
 ### 9) Delete address object.
 
@@ -143,12 +168,14 @@ Optional settings:
 
 ```python
 >>> fortimngr.get_address_groups()
+>>> fortimngr.get_address_v6_groups()
 ```
 
 ### 11) Get specific address group.
 
 ```python
 >>> fortimngr.get_address_groups(name="TestGroup")
+>>> fortimngr.get_address_v6_groups(name="TestGroup")
 ```
 
 - ## Parameters
@@ -158,7 +185,9 @@ Optional settings:
 ### 12) Create your own address group.
 
 ```python
->>> fortimngr.add_address_group(name="Test_Group",
+>>> fortimngr.add_address_group(name="Test_Group",                                
+                                members=["TestObject1"])
+>>> fortimngr.add_address_v6_group(name="Test_Group",
                                 members=["TestObject1"])
 ```
 
@@ -172,6 +201,9 @@ Optional settings:
 
 ```python
 >>> fortimngr.update_address_group(name="Test_Group",
+                                   object_name="TestObject3",
+                                   do="add")
+>>> fortimngr.update_address_v6_group(name="Test_Group",
                                    object_name="TestObject3",
                                    do="add")
 ```
@@ -188,6 +220,7 @@ Optional settings:
 
 ```python
 >>> fortimngr.delete_address_group(name="Test_group")
+>>> fortimngr.delete_address_v6_group(name="Test_group")
 ```
 
 - ## Parameters
@@ -332,6 +365,17 @@ fortimngr.get_firewall_header_policies
                                   service="ALL_TCP",
                                   logtraffic=2
                                   )
+>>> fortimngr.add_firewall_policy_with_v6(policy_package_name="YourPolicyPackageName",
+                                  name="YourPolicyName",
+                                  source_interface="port1",
+                                  source_address="all",
+                                  source_address6="all",
+                                  destination_interface="port2",
+                                  destination_address="all",
+                                  destination_address6="all",
+                                  service="ALL_TCP",
+                                  logtraffic=2
+                                  )
 
 ```
 
@@ -340,9 +384,11 @@ fortimngr.get_firewall_header_policies
 * policy_package_name: Enter the name of the policy package eg. "default"
 * name: Enter the policy name in a string format eg. "Test Policy"
 * source_interface: Enter the source interface in a string format eg. "port1"
-* source_address: Enter the src. address object name in string format eg. "LAN_10.1.1.0_24"
+* source_address: Enter the src. address object name in string format or list
+* source_address6: Enter the src. address v6 object name in string format or list
 * destination_interface: Enter the source interface in a string format eg. "port2"
 * destination_address: Enter the dst. address object name eg. "WAN_100.25.1.63_32"
+* destination_address6: Enter the dst. address v6 object name in string format or list
 * service: Enter the service you want to permit or deny in string eg. "ALL_UDP"
 * schedule: Schedule time is kept 'always' as default.
 * action: Permit(1) or Deny(0) the traffic. Default is set to Permit.
