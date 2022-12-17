@@ -312,7 +312,15 @@ Optional arguments:
 * policy_package_name: Enter the policy package name.
 * policyid: Can filter and get the policy you want using policyID
 
-### 24) Create your own policy in your Policy Package.
+### 24) Get global header policy
+
+fortimngr.get_global_header_policies
+
+### 25) Get header policy
+
+fortimngr.get_firewall_header_policies
+
+### 26) Create your own policy in your Policy Package.
 
 ```python
 >>> fortimngr.add_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -343,7 +351,8 @@ Optional arguments:
                    logtraffic=1  Means Log Security Events
                    logtraffic=2  Means Log All Sessions
 
-### 25) Update the policy in your Policy Package.
+
+### 27) Update the policy in your Policy Package.
 
 ```python
 >>> fortimngr.update_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -359,7 +368,8 @@ Optional arguments:
 * policyid: Enter the Policy ID you want to edit
 * data: You can get the **kwargs parameters with "show_params_for_policy_update()" method
 
-### 26) Delete the policy in your Policy Package.
+
+### 28) Delete the policy in your Policy Package.
 
 ```python
 >>> fortimngr.delete_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -373,7 +383,9 @@ Optional arguments:
 
 
 
-### 27) Move Firewall Policy.
+
+### 29) Move Firewall Policy.
+
 ```python
 >>> fortimngr.move_firewall_policy(policy_package_name="LocalLab",
                                    move_policyid=10, 
@@ -390,15 +402,14 @@ Optional arguments:
 
 # User Operations : Installing the Policy Package.
 
-### 28) Installing the Policy Package.
+### 30) Installing the Policy Package.
 
 ```python
 >>> fortimngr.install_policy_package(package_name="Your Policy Package name")
 
 ```
 
-
-### 29) Adding Installation Targets to a Policy Package.
+### 31) Adding Installation Targets to a Policy Package.
 
 ```python
 >>> fortimngr.add_install_target(device_name="FortiGateVM64", 
@@ -415,7 +426,8 @@ Optional arguments:
 
 # Show Params for updation of Policies and Objects.
 
-### 30) Parameters for updating Address Object.
+### 32) Parameters for updating Address Object.
+
 ```python
 >>> fortimngr.show_params_for_object_update()
 ```
@@ -428,7 +440,9 @@ Optional arguments:
         object_name(str)            : Address Name
         subnet[list]                : IP/Netmask
         object_type(int)            : Type
-### 31) Parameters for updating Policy.
+
+### 33) Parameters for updating Policy.
+
 ```python
 >>> fortimngr.show_params_for_policy_update()
 ```
@@ -447,7 +461,9 @@ Optional arguments:
         comment(str)                    : Comments
 
 # User Operations : Adding scripts in Fortimanager.
-### 32) Add a script in FortiManager's Database.
+
+### 34) Add a script in FortiManager's Database.
+
 ```python
 >>> fortimngr.create_script(name="Test Script Template", 
                             script_content="config system interface \n edit port 1 \n set ip 1.1.1.1/24", 
@@ -466,13 +482,14 @@ Optional arguments:
 ```
 
 
-### 33) Get all scripts from FortiManager's Database.
+### 35) Get all scripts from FortiManager's Database.
+
 ```python
 >>> fortimngr.get_all_scripts()
 ```
 
+### 36) Delete a script from FortiManager's Database.
 
-### 34) Delete a script from FortiManager's Database.
 ```python
 >>> fortimngr.delete_script(name="Test Script Template")
 ```
@@ -480,7 +497,8 @@ Optional arguments:
 
 * :param name: Specify a name for the script tha need to be deleted.
 
-### 35) Run a script on FortiManager's Database/ FortiGate's Remote CLI.
+### 37) Run a script on FortiManager's Database/ FortiGate's Remote CLI.
+
 ```python
 >>> fortimngr.run_script_on_single_device(script_name="test_script", 
                                           device_name="FortiGate-VM64", 
@@ -510,9 +528,8 @@ Optional arguments:
 ```  
 * :param script_name: Specify the script name that should be executed on the specified devices
 
+### 38) Backup FortiGate's configuration from FortiManager and store it in TFTP server.
 
-
-### 36) Backup FortiGate's configuration from FortiManager and store it in TFTP server.
 ```python
 >>> fortimngr.backup_config_of_fortiGate_to_tftp(tftp_ip="1.1.1.1", 
                                                  path="/FortiGate_backups", 
