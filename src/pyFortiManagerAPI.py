@@ -859,6 +859,47 @@ class FortiManager:
         get_firewall_header_policies = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_firewall_header_policies.json()["result"]
 
+    # Footer
+    def get_global_footer_policies(self, policy_package_name="default", policyid=False):
+        """
+        Get global footer policies
+        """
+        url = f"pm/config/global/pkg/{policy_package_name}/global/footer/policy"
+        if policyid:
+            url = url + str(policyid)
+        session = self.login()
+        payload = {
+            "method": "get",
+            "params": [
+                {
+                    "url": url
+                }
+            ],
+            "session": self.sessionid
+        }
+        get_global_footer_policies = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_global_footer_policies.json()["result"]
+
+    def get_firewall_footer_policies(self, policy_package_name="default", policyid=False):
+        """
+        Get adom footer policies
+        """
+        url = f"pm/config/adom/{self.adom}/obj/global/footer/policy"
+        if policyid:
+            url = url + str(policyid)
+        session = self.login()
+        payload = {
+            "method": "get",
+            "params": [
+                {
+                    "url": url
+                }
+            ],
+            "session": self.sessionid
+        }
+        get_firewall_footer_policies = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_firewall_footer_policies.json()["result"]
+
     # Firewall Interfaces
     def get_device_interfaces(self, device):
         """
