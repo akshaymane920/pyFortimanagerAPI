@@ -353,7 +353,15 @@ fortimngr.get_global_header_policies
 
 fortimngr.get_firewall_header_policies
 
-### 26) Create your own policy in your Policy Package.
+### 26) Get global footer policy
+
+fortimngr.get_global_footer_policies
+
+### 27) Get footer policy
+
+fortimngr.get_firewall_footer_policies
+
+### 28) Create your own policy in your Policy Package.
 
 ```python
 >>> fortimngr.add_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -398,7 +406,7 @@ fortimngr.get_firewall_header_policies
                    logtraffic=2  Means Log All Sessions
 
 
-### 27) Update the policy in your Policy Package.
+### 29) Update the policy in your Policy Package.
 
 ```python
 >>> fortimngr.update_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -415,7 +423,7 @@ fortimngr.get_firewall_header_policies
 * data: You can get the **kwargs parameters with "show_params_for_policy_update()" method
 
 
-### 28) Delete the policy in your Policy Package.
+### 30) Delete the policy in your Policy Package.
 
 ```python
 >>> fortimngr.delete_firewall_policy(policy_package_name="YourPolicyPackageName",
@@ -430,7 +438,7 @@ fortimngr.get_firewall_header_policies
 
 
 
-### 29) Move Firewall Policy.
+### 31) Move Firewall Policy.
 
 ```python
 >>> fortimngr.move_firewall_policy(policy_package_name="LocalLab",
@@ -448,14 +456,14 @@ fortimngr.get_firewall_header_policies
 
 # User Operations : Installing the Policy Package.
 
-### 30) Installing the Policy Package.
+### 32) Installing the Policy Package.
 
 ```python
 >>> fortimngr.install_policy_package(package_name="Your Policy Package name")
 
 ```
 
-### 31) Adding Installation Targets to a Policy Package.
+### 33) Adding Installation Targets to a Policy Package.
 
 ```python
 >>> fortimngr.add_install_target(device_name="FortiGateVM64", 
@@ -472,7 +480,7 @@ fortimngr.get_firewall_header_policies
 
 # Show Params for updation of Policies and Objects.
 
-### 32) Parameters for updating Address Object.
+### 34) Parameters for updating Address Object.
 
 ```python
 >>> fortimngr.show_params_for_object_update()
@@ -487,7 +495,7 @@ fortimngr.get_firewall_header_policies
         subnet[list]                : IP/Netmask
         object_type(int)            : Type
 
-### 33) Parameters for updating Policy.
+### 35) Parameters for updating Policy.
 
 ```python
 >>> fortimngr.show_params_for_policy_update()
@@ -508,7 +516,7 @@ fortimngr.get_firewall_header_policies
 
 # User Operations : Adding scripts in Fortimanager.
 
-### 34) Add a script in FortiManager's Database.
+### 36) Add a script in FortiManager's Database.
 
 ```python
 >>> fortimngr.create_script(name="Test Script Template", 
@@ -528,13 +536,13 @@ fortimngr.get_firewall_header_policies
 ```
 
 
-### 35) Get all scripts from FortiManager's Database.
+### 37) Get all scripts from FortiManager's Database.
 
 ```python
 >>> fortimngr.get_all_scripts()
 ```
 
-### 36) Delete a script from FortiManager's Database.
+### 38) Delete a script from FortiManager's Database.
 
 ```python
 >>> fortimngr.delete_script(name="Test Script Template")
@@ -543,7 +551,7 @@ fortimngr.get_firewall_header_policies
 
 * :param name: Specify a name for the script tha need to be deleted.
 
-### 37) Run a script on FortiManager's Database/ FortiGate's Remote CLI.
+### 39) Run a script on FortiManager's Database/ FortiGate's Remote CLI.
 
 ```python
 >>> fortimngr.run_script_on_single_device(script_name="test_script", 
@@ -574,7 +582,7 @@ fortimngr.get_firewall_header_policies
 ```  
 * :param script_name: Specify the script name that should be executed on the specified devices
 
-### 38) Backup FortiGate's configuration from FortiManager and store it in TFTP server.
+### 40) Backup FortiGate's configuration from FortiManager and store it in TFTP server.
 
 ```python
 >>> fortimngr.backup_config_of_fortiGate_to_tftp(tftp_ip="1.1.1.1", 
