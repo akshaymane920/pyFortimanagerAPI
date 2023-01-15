@@ -130,6 +130,40 @@ class FortiManager:
         get_adoms = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_adoms.json()["result"]
 
+    def __lock_unlock_adom(self, method, name=False):
+        """
+        Lock or Unlock current Adom in FortiManager 
+        Adom has to be in workspace mode
+        :param method: lock or unlock adom
+        :param name: Can lock specific adom using name as a filter
+        :return: Response of status code (0=success) with data in JSON Format
+        """
+        url = "dvmdb/adom"
+
+        if name:
+            url = f"dvmdb/adom/{name}/workspace/{method}"
+        else:
+            url = f"dvmdb/adom/{self.adom}/workspace/{method}"
+        
+        payload = \
+        {
+            "method": "exec",
+            "params":
+                [
+                    {
+                        "url": url
+                    }
+                ],
+        }
+
+        return self.custom_api(payload)
+
+    def lock_adom(self, name=False):
+        return self.__lock_unlock_adom("lock", name)
+
+    def unlock_adom(self, name=False):
+        return self.__lock_unlock_adom("unlock", name)
+
     def get_devices(self):
         """
         :return: returns list of devices added in FortiManager
