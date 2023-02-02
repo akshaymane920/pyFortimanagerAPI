@@ -347,7 +347,7 @@ class FortiManager:
         """
         session = self.login()
         payload = {"method": "update",
-                   "params": [{"url": f"/dvmdb/adom/root/device/{device}",
+                   "params": [{"url": f"/dvmdb/adom/{self.adom}/device/{device}",
                                "data": {"name": f"{device}", "meta fields": {f"{meta_name}": f"{meta_value}"}}}]}
         payload.update({"session": self.sessionid})
         assign_meta = session.post(
@@ -365,7 +365,7 @@ class FortiManager:
         """
         session = self.login()
         payload = {"method": "update",
-                   "params": [{"url": f"/dvmdb/adom/root/device/{device}/vdom/{vdom}",
+                   "params": [{"url": f"/dvmdb/adom/{self.adom}/device/{device}/vdom/{vdom}",
                                "data": {"name": f"{device}", "meta fields": {f"{meta_name}": f"{meta_value}"}}}]}
         payload.update({"session": self.sessionid})
         assign_meta_vdom = session.post(
@@ -1459,7 +1459,7 @@ class FortiManager:
                     "data": {"adom": self.adom,
                              "scope": devices,
                              "script": script_name},
-                    "url": "/dvmdb/adom/root/script/execute"}],
+                    "url": f"/dvmdb/adom/{self.adom}/script/execute"}],
                 "session": self.sessionid
             }
         run_script = session.post(
@@ -1482,7 +1482,7 @@ class FortiManager:
                     "data": {"adom": self.adom,
                              "scope": {"name": device_name, "vdom": vdom},
                              "script": script_name},
-                    "url": "/dvmdb/adom/root/script/execute"}],
+                    "url": f"/dvmdb/adom/{self.adom}/script/execute"}],
                 "session": self.sessionid
             }
 
