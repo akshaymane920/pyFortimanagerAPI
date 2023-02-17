@@ -934,24 +934,6 @@ class FortiManager:
         get_firewall_footer_policies = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_firewall_footer_policies.json()["result"]
 
-    # Firewall Interfaces
-    def get_device_interfaces(self, device):
-        """
-        Get interface details from the devices.
-        :param device: Specify name of the device.
-        """
-        session = self.login()
-        payload = \
-            {
-                "method": "exec",
-                "params": [
-                    {"url": "sys/proxy/json",
-                     "data": {"target": [f"adom/{self.adom}/device/{device}"], "action": "get",
-                              "resource": "/api/v2/monitor/system/interface/select?&global=1&include_vlan=1"}}]}
-        payload.update(session=self.sessionid)
-        get_interfaces = session.post(url=self.base_url, json=payload, verify=self.verify)
-        return get_interfaces.json()["result"]
-
     # Policy Lookup
     def policy_lookup(self, device, source_interface, source_ip, destination_ip, protocol, port, vdom="root"):
         session = self.login()
@@ -980,6 +962,39 @@ class FortiManager:
                  "data": {"target": [f"adom/root/device/{device}"],
                           "action": "get",
                           "resource": f"/api/v2/cmdb/firewall/policy/?vdom={vdom}"}}]}
+        payload.update(session=self.sessionid)
+        req = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return req.json()["result"]
+
+    # Firewall Interfaces
+    def get_device_interfaces(self, device):
+        """
+        Get interface details from the devices.
+        :param device: Specify name of the device.
+        """
+        session = self.login()
+        payload = \
+            {
+                "method": "exec",
+                "params": [
+                    {"url": "sys/proxy/json",
+                     "data": {"target": [f"adom/{self.adom}/device/{device}"], "action": "get",
+                              "resource": "/api/v2/monitor/system/interface/select?&global=1&include_vlan=1"}}]}
+        payload.update(session=self.sessionid)
+        get_interfaces = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_interfaces.json()["result"]
+
+    def get_interfaces(self, device):
+        session = self.login()
+        payload = {"method": "get", "params": [{"url": f"pm/config/device/{device}/global/system/interface"}]}
+        payload.update(session=self.sessionid)
+        req = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return req.json()["result"]
+
+    def get_interface(self, device, interface):
+        session = self.login()
+        payload = {"method": "get",
+                   "params": [{"url": f"pm/config/device/{device}/global/system/interface/{interface}"}]}
         payload.update(session=self.sessionid)
         req = session.post(url=self.base_url, json=payload, verify=self.verify)
         return req.json()["result"]
