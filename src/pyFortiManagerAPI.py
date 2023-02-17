@@ -144,17 +144,17 @@ class FortiManager:
             url = f"dvmdb/adom/{name}/workspace/{method}"
         else:
             url = f"dvmdb/adom/{self.adom}/workspace/{method}"
-        
+
         payload = \
-        {
-            "method": "exec",
-            "params":
-                [
-                    {
-                        "url": url
-                    }
-                ],
-        }
+            {
+                "method": "exec",
+                "params":
+                    [
+                        {
+                            "url": url
+                        }
+                    ],
+            }
 
         return self.custom_api(payload)
 
@@ -446,7 +446,7 @@ class FortiManager:
         add_address_object = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return add_address_object.json()["result"]
-    
+
     def add_firewall_address_v6_object(self, name, subnet6: str, object_type=0):
         """
         Create an address object using provided info
@@ -458,7 +458,7 @@ class FortiManager:
         session = self.login()
         payload = {
             "method": "add",
-            "params": [{"data": {                                
+            "params": [{"data": {
                 "name": name,
                 "ip6": subnet6,
                 "type": object_type},
@@ -635,7 +635,7 @@ class FortiManager:
         get_address_group = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return get_address_group.json()["result"]
-    
+
     def get_address_v6_groups(self, name=False):
         """
         Get the address groups created in your FortiManager
@@ -659,7 +659,7 @@ class FortiManager:
         get_address_group = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return get_address_group.json()["result"]
-    
+
     def add_address_group(self, name, members=list):
         """
         Create your own group with just 2 parameters
@@ -685,7 +685,7 @@ class FortiManager:
         add_address_group = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return add_address_group.json()["result"]
-    
+
     def add_address_v6_group(self, name, members=list):
         """
         Create your own group with just 2 parameters
@@ -711,7 +711,7 @@ class FortiManager:
         add_address_group = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return add_address_group.json()["result"]
-    
+
     def update_address_group(self, name, object_name, do="add"):
         """
         Update Members of the Address group
@@ -952,6 +952,38 @@ class FortiManager:
         get_interfaces = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_interfaces.json()["result"]
 
+    # Policy Lookup
+    def policy_lookup(self, device, source_interface, source_ip, destination_ip, protocol, port, vdom="root"):
+        session = self.login()
+        payload = {"method": "exec",
+                   "params": [{"url": "sys/proxy/json",
+                               "data": {
+                                   "target": [f"adom/{self.adom}/device/{device}"],
+                                   "action": "get",
+                                   "resource": f"/api/v2/monitor/firewall/policy-lookup/select?vdom={vdom}"
+                                               f"&srcintf={source_interface}"
+                                               f"&protocol={protocol}"
+                                               f"&sourceip={source_ip}"
+                                               f"&sourceport="
+                                               f"&dest={destination_ip}"
+                                               f"&destport={port}"}}]}
+        payload.update(session=self.sessionid)
+        req = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return req.json()["result"]
+
+    def get_policies_assigned_to_device(self, device, vdom):
+        session = self.session
+        payload = {
+            "method": "exec",
+            "params": [
+                {"url": "sys/proxy/json",
+                 "data": {"target": [f"adom/root/device/{device}"],
+                          "action": "get",
+                          "resource": f"/api/v2/cmdb/firewall/policy/?vdom={vdom}"}}]}
+        payload.update(session=self.sessionid)
+        req = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return req.json()["result"]
+
     # Services
     def get_services(self):
         """
@@ -1004,7 +1036,7 @@ class FortiManager:
         get_firewall_policies = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return get_firewall_policies.json()["result"]
-	
+
     def get_dhcp(self, device):
         """
         Get dhcp details from the devices.
@@ -1020,7 +1052,7 @@ class FortiManager:
                               "resource": "/api/v2/monitor/system/dhcp/select?&vdom=root&ipv6=true&scope=global"}}]}
         payload.update(session=self.sessionid)
         get_interfaces = session.post(url=self.base_url, json=payload, verify=self.verify)
-        return get_interfaces.json()["result"] 
+        return get_interfaces.json()["result"]
 
     def add_firewall_policy(self, policy_package_name: str, name: str, source_interface: str,
                             source_address: str, destination_interface: str, destination_address: str,
@@ -1070,8 +1102,9 @@ class FortiManager:
         return add_policy.json()
 
     def add_firewall_policy_with_v6(self, policy_package_name: str, name: str, source_interface: str,
-                            source_address: Any, source_address6: Any, destination_interface: str, destination_address: Any, destination_address6: Any,
-                            service: str, nat='disable', schedule="always", action=1, logtraffic=2):
+                                    source_address: Any, source_address6: Any, destination_interface: str,
+                                    destination_address: Any, destination_address6: Any,
+                                    service: str, nat='disable', schedule="always", action=1, logtraffic=2):
         """
         Create your own policy in FortiManager using the instance parameters.
         :param policy_package_name: Enter the name of the policy package                eg. "default"
@@ -1099,14 +1132,14 @@ class FortiManager:
                 {
                     "data": {
                         "dstaddr": destination_address,
-                        "dstaddr6" : destination_address6,
+                        "dstaddr6": destination_address6,
                         "dstintf": destination_interface,
                         "logtraffic": logtraffic,
                         "name": name,
                         "schedule": schedule,
                         "service": service,
                         "srcaddr": source_address,
-                        "srcaddr6" : source_address6,
+                        "srcaddr6": source_address6,
                         "srcintf": source_interface,
                         "action": action,
                         "nat": nat
