@@ -1561,3 +1561,23 @@ class FortiManager:
                                                                                           ),
                        "device": device_name, "vdom": vdom})
         return result
+
+    def get_script_output(self, device_name: str, vdom: str):
+        """
+        Get all scripts output from [device] on FortiManager
+        :param device_name: Specify device name.
+        :param vdom: Specify the Vdom
+        """
+
+        session = self.login()
+        payload = \
+            {
+                "method": "get",
+                "params": [{
+                    "url": f"/dvmdb/adom/{self.adom}/script/log/list/device/{device_name}"}],
+                "session": self.sessionid
+            }
+
+        run_script = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return run_script.json()["result"]
