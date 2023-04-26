@@ -1564,7 +1564,7 @@ class FortiManager:
 
     def get_script_output(self, device_name: str, vdom: str):
         """
-        Retrieves all scripts output
+        Get all scripts output from [device] on FortiManager
         :param device_name: Specify device name.
         :param vdom: Specify the Vdom
         """
