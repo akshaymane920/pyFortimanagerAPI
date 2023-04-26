@@ -1581,3 +1581,4 @@ class FortiManager:
         run_script = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return run_script.json()["result"]
+    
