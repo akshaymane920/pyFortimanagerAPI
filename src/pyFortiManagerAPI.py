@@ -11,6 +11,65 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
+class Lock:
+    """
+    This class is used to lock an ADOM with a context manager
+    """
+
+    def __init__(self, base_url: str, adom: str, session: requests.Session, sessionid: int) -> None:
+        self.adom = adom
+        self.base_url = base_url
+        self.locked = False
+        self.session = session
+        self.sessionid = sessionid
+
+    def __lock_unlock_adom(self, method):
+        """
+        Lock or Unlock current Adom in FortiManager
+        Adom has to be in workspace mode
+        :param method: lock or unlock adom
+        :param name: Can lock specific adom using name as a filter
+        :return: Response of status code (0=success) with data in JSON Format
+        """
+        url = f"dvmdb/adom/{self.adom}/workspace/{method}"
+
+        payload = {
+            "method": "exec",
+            "params": [{"url": url}],
+        }
+
+        return self.custom_api(payload)
+
+    def lock(self) -> dict:
+        data = self.__lock_unlock_adom("lock")
+        self.locked = True
+        return data
+
+    def unlock(self) -> dict:
+        data = self.__lock_unlock_adom("unlock")
+        self.locked = False
+        return data
+
+    def custom_api(self, payload) -> dict:
+        """
+        Execute an API call manually by defining the payload
+        :param payload: specify the valid payload in a dict.
+        :return: returns response of the API call from FortiManager
+        """
+        payload.update({"session": self.sessionid})
+        custom_api = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
+        return custom_api.json()
+
+    def __enter__(self):
+        self.lock()
+
+    def __exit__(self, *args):
+        self.unlock()
+
+
 class FortiManager:
     """
     This class will include all the methods used for executing the api calls on FortiManager.
@@ -110,33 +169,39 @@ class FortiManager:
         )
         return get_adoms.json()["result"]
 
-    def __lock_unlock_adom(self, method, name=False):
+    def __lock_unlock_adom(self, method, name=None):
         """
-        Lock or Unlock current Adom in FortiManager
-        Adom has to be in workspace mode
-        :param method: lock or unlock adom
-        :param name: Can lock specific adom using name as a filter
-        :return: Response of status code (0=success) with data in JSON Format
+        This function has been deprecated, use Lock() with contextmanager
         """
-        url = "dvmdb/adom"
 
-        if name:
-            url = f"dvmdb/adom/{name}/workspace/{method}"
+        logging.warning("This function has been deprecated, use Lock() with contextmanager")
+        name = self.adom if name is None else name
+        adom_lock = Lock(self.base_url, name, self.session, self.sessionid)
+
+        if method == "lock":
+            return adom_lock.lock()
         else:
-            url = f"dvmdb/adom/{self.adom}/workspace/{method}"
+            return adom_lock.unlock()
 
-        payload = {
-            "method": "exec",
-            "params": [{"url": url}],
-        }
+    def lock_adom(self, name=None):
+        """
+        This function has been deprecated, use Lock() with contextmanager
+        """
 
-        return self.custom_api(payload)
+        logging.warning("This function has been deprecated, use Lock() with contextmanager")
+        name = self.adom if name is None else name
+        adom_lock = Lock(self.base_url, name, self.session, self.sessionid)
 
-    def lock_adom(self, name=False):
-        return self.__lock_unlock_adom("lock", name)
+        return adom_lock.lock()
 
-    def unlock_adom(self, name=False):
-        return self.__lock_unlock_adom("unlock", name)
+    def unlock_adom(self, name=None):
+        """
+        This function has been deprecated, use Lock() with contextmanager
+        """
+        name = self.adom if name is None else name
+        adom_lock = Lock(self.base_url, name, self.session, self.sessionid)
+
+        return adom_lock.unlock()
 
     def get_devices(self):
         """
