@@ -31,7 +31,6 @@ class FortiManager:
         self.password = password
         self.protocol = protocol
         self.proxies = proxies if proxies is not None else {}
-        self.session = None
         self.sessionid: Optional[int] = None
         self.username = username
 
@@ -100,13 +99,15 @@ class FortiManager:
         url = "dvmdb/adom"
         if name:
             url = f"dvmdb/adom/{name}"
-        session = self.login()
         payload = {
             "method": "get",
             "params": [{"url": url, "option": "object member"}],
             "session": self.sessionid,
         }
-        get_adoms = session.post(url=self.base_url, json=payload, verify=self.verify)
+        get_adoms = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return get_adoms.json()["result"]
 
     def __lock_unlock_adom(self, method, name=False):
@@ -141,17 +142,15 @@ class FortiManager:
         """
         :return: returns list of devices added in FortiManager
         """
-        session = self.login()
         payload = {
             "method": "get",
             "params": [{"url": f"/dvmdb/adom/{self.adom}/device/"}],
         }
         payload.update({"session": self.sessionid})
-        get_devices = session.post(url=self.base_url, json=payload, verify=False)
+        get_devices = self.session.post(url=self.base_url, json=payload)
         return get_devices.json()
 
     def add_device(self, ip_address, username, password, name, description=False):
-        session = self.login()
         payload = {
             "method": "exec",
             "params": [
@@ -173,7 +172,7 @@ class FortiManager:
             ],
         }
         payload.update({"session": self.sessionid})
-        add_device = session.post(url=self.base_url, json=payload, verify=self.verify)
+        add_device = self.session.post(url=self.base_url, json=payload)
         return add_device.json()
 
     def add_model_device(
@@ -193,7 +192,6 @@ class FortiManager:
         #
         # without nonblocking the failure reason is returned:
         # [{'status': {'code': -20010, 'message': 'Serial number already in use'}, 'url': 'dvm/cmd/add/device'}]
-        session = self.login()
         payload = {
             "method": "exec",
             "params": [
@@ -220,7 +218,7 @@ class FortiManager:
             ],
         }
         payload.update({"session": self.sessionid})
-        add_model_device = session.post(url=self.base_url, json=payload, verify=False)
+        add_model_device = self.session.post(url=self.base_url, json=payload)
         return add_model_device.json()["result"]
 
     # Policy Package Methods
@@ -236,9 +234,8 @@ class FortiManager:
         url = f"pm/pkg/adom/{self.adom}/"
         if name:
             url = f"pm/pkg/adom/{self.adom}/{name}"
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_packages = session.post(url=self.base_url, json=payload, verify=False)
+        get_packages = self.session.post(url=self.base_url, json=payload)
         return get_packages.json()["result"]
 
     def add_policy_package(self, name):
@@ -248,7 +245,6 @@ class FortiManager:
         :return: Response of status code with data in JSON Format
         """
         url = f"pm/pkg/adom/{self.adom}/"
-        session = self.login()
         payload = {
             "method": "set",
             "params": [
@@ -261,7 +257,7 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        add_package = session.post(url=self.base_url, json=payload, verify=False)
+        add_package = self.session.post(url=self.base_url, json=payload)
         return add_package.json()["result"]
 
     def add_install_target(self, device_name, pkg_name, vdom: str = "root"):
@@ -272,7 +268,6 @@ class FortiManager:
         :param vdom: name of the vdom (default=root)
         :return: returns response from FortiManager api whether is was a success or failure.
         """
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -283,9 +278,7 @@ class FortiManager:
             ],
         }
         payload.update({"session": self.sessionid})
-        add_installation_target = session.post(
-            url=self.base_url, json=payload, verify=self.verify
-        )
+        add_installation_target = self.session.post(url=self.base_url, json=payload)
         return add_installation_target.json()
 
     def get_meta_data(self):
@@ -293,10 +286,9 @@ class FortiManager:
         Get all the meta tags present in the FortiManager
         :return: returns meta tags present in FortiManager
         """
-        session = self.login()
         payload = {"method": "get", "params": [{"url": "/dvmdb/_meta_fields/device"}]}
         payload.update({"session": self.sessionid})
-        get_meta = session.post(url=self.base_url, json=payload, verify=self.verify)
+        get_meta = self.session.post(url=self.base_url, json=payload)
         return get_meta.json()
 
     def add_meta_data(self, name, importance=0, status=1):
@@ -307,7 +299,6 @@ class FortiManager:
         :param status: status of meta tag whether it should be active(1) or disabled(0)
         :return: returns response from FortiManager API whether the request was successful or not.!
         """
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -323,7 +314,7 @@ class FortiManager:
             ],
         }
         payload.update({"session": self.sessionid})
-        get_meta = session.post(url=self.base_url, json=payload, verify=self.verify)
+        get_meta = self.session.post(url=self.base_url, json=payload)
         return get_meta.json()
 
     def assign_meta_to_device(self, device, meta_name, meta_value):
@@ -334,7 +325,6 @@ class FortiManager:
         :param meta_value: value of the meta tag
         :return: returns response from FortiManager API whether the request was successful or not.!
         """
-        session = self.login()
         payload = {
             "method": "update",
             "params": [
@@ -348,7 +338,7 @@ class FortiManager:
             ],
         }
         payload.update({"session": self.sessionid})
-        assign_meta = session.post(self.base_url, json=payload, verify=self.verify)
+        assign_meta = self.session.post(self.base_url, json=payload)
         return assign_meta.json()
 
     def assign_meta_to_device_vdom(self, device, vdom, meta_name, meta_value):
@@ -360,7 +350,6 @@ class FortiManager:
         :param meta_value: value of the meta tag
         :return: returns response from FortiManager API whether the request was successful or not.!
         """
-        session = self.login()
         payload = {
             "method": "update",
             "params": [
@@ -374,7 +363,7 @@ class FortiManager:
             ],
         }
         payload.update({"session": self.sessionid})
-        assign_meta_vdom = session.post(self.base_url, json=payload, verify=self.verify)
+        assign_meta_vdom = self.session.post(self.base_url, json=payload)
         return assign_meta_vdom.json()
 
     # Firewall Object Methods
@@ -386,11 +375,8 @@ class FortiManager:
         url = f"pm/config/adom/{self.adom}/obj/firewall/address"
         if name:
             url = f"pm/config/adom/{self.adom}/obj/firewall/address/{name}"
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_address_objects = session.post(
-            url=self.base_url, json=payload, verify=self.verify
-        )
+        get_address_objects = self.session.post(url=self.base_url, json=payload)
         return get_address_objects.json()["result"]
 
     # Firewall Object v6 Methods
@@ -402,11 +388,8 @@ class FortiManager:
         url = f"pm/config/adom/{self.adom}/obj/firewall/address6"
         if name:
             url = f"pm/config/adom/{self.adom}/obj/firewall/address6/{name}"
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_address_objects = session.post(
-            url=self.base_url, json=payload, verify=self.verify
-        )
+        get_address_objects = self.session.post(url=self.base_url, json=payload)
         return get_address_objects.json()["result"]
 
     def add_firewall_address_object(
@@ -426,7 +409,6 @@ class FortiManager:
         :param allow_routing: Set routing if needed
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -444,9 +426,7 @@ class FortiManager:
             "session": self.sessionid,
         }
 
-        add_address_object = session.post(
-            url=self.base_url, json=payload, verify=self.verify
-        )
+        add_address_object = self.session.post(url=self.base_url, json=payload)
         return add_address_object.json()["result"]
 
     def add_firewall_address_v6_object(self, name, subnet6: str, object_type=0):
@@ -457,7 +437,6 @@ class FortiManager:
         :param object_type:
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -469,9 +448,7 @@ class FortiManager:
             "session": self.sessionid,
         }
 
-        add_address_object = session.post(
-            url=self.base_url, json=payload, verify=self.verify
-        )
+        add_address_object = self.session.post(url=self.base_url, json=payload)
         return add_address_object.json()["result"]
 
     def add_dynamic_object(self, name, device, subnet=list, comment=None):
@@ -483,7 +460,6 @@ class FortiManager:
         :param comment: comment
         :return: returns response of the request from FortiManager.
         """
-        session = self.login()
         add_obj = self.add_firewall_address_object(
             name, subnet=["0.0.0.0", "255.255.255.255"]
         )
@@ -503,8 +479,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        add_dynamic_obj = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        add_dynamic_obj = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return [add_obj, add_dynamic_obj.json()["result"]]
 
@@ -518,7 +495,6 @@ class FortiManager:
         :param comment: add comment if you want.
         :return: return result of the request from FortiManager.
         """
-        session = self.login()
         payload = {
             "params": [
                 {
@@ -538,8 +514,9 @@ class FortiManager:
             payload.update(method="update")
         elif do == "remove":
             payload.update(method="delete")
-        update_dynamic_obj = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        update_dynamic_obj = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return update_dynamic_obj.json()["result"]
 
@@ -551,7 +528,6 @@ class FortiManager:
         :return: Response of status code with data in JSON Format
         """
         data = self.make_data(_for="object", **data)
-        session = self.login()
         payload = {
             "method": "update",
             "params": [
@@ -563,8 +539,9 @@ class FortiManager:
             "session": self.sessionid,
         }
         payload = repr(payload)
-        update_firewall_object = session.post(
-            url=self.base_url, data=payload, verify=self.verify
+        update_firewall_object = self.session.post(
+            url=self.base_url,
+            data=payload,
         )
         return update_firewall_object.json()["result"]
 
@@ -576,7 +553,6 @@ class FortiManager:
         :return: Response of status code with data in JSON Format
         """
         data = self.make_data(_for="object", **data)
-        session = self.login()
         payload = {
             "method": "update",
             "params": [
@@ -588,8 +564,9 @@ class FortiManager:
             "session": self.sessionid,
         }
         payload = repr(payload)
-        update_firewall_object = session.post(
-            url=self.base_url, data=payload, verify=self.verify
+        update_firewall_object = self.session.post(
+            url=self.base_url,
+            data=payload,
         )
         return update_firewall_object.json()["result"]
 
@@ -599,7 +576,6 @@ class FortiManager:
         :param object_name: Enter the Object name you want to delete
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "delete",
             "params": [
@@ -609,8 +585,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        delete_address_object = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        delete_address_object = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return delete_address_object.json()["result"]
 
@@ -620,7 +597,6 @@ class FortiManager:
         :param object_name: Enter the Object name you want to delete
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "delete",
             "params": [
@@ -630,8 +606,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        delete_address_object = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        delete_address_object = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return delete_address_object.json()["result"]
 
@@ -642,13 +619,13 @@ class FortiManager:
         :param name: You can filter out the specific address group which you want to see
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         url = f"pm/config/adom/{self.adom}/obj/firewall/addrgrp"
         if name:
             url = f"pm/config/adom/{self.adom}/obj/firewall/addrgrp/{name}"
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_address_group = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_address_group = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_address_group.json()["result"]
 
@@ -658,13 +635,13 @@ class FortiManager:
         :param name: You can filter out the specific address group which you want to see
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         url = f"pm/config/adom/{self.adom}/obj/firewall/addrgrp6"
         if name:
             url = f"pm/config/adom/{self.adom}/obj/firewall/addrgrp6/{name}"
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_address_group = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_address_group = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_address_group.json()["result"]
 
@@ -675,7 +652,6 @@ class FortiManager:
         :param members: pass your object names as members in a list     eg. ["LAN_10.1.1.0_24, "INTERNET"]
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -689,8 +665,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        add_address_group = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        add_address_group = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return add_address_group.json()["result"]
 
@@ -701,7 +678,6 @@ class FortiManager:
         :param members: pass your object names as members in a list     eg. ["LAN_10.1.1.0_24, "INTERNET"]
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -715,8 +691,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        add_address_group = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        add_address_group = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return add_address_group.json()["result"]
 
@@ -730,7 +707,6 @@ class FortiManager:
                     do="remove" will remove the object from address group
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         get_addr_group = self.get_address_groups(name=name)
         members = get_addr_group[0]["data"]["member"]
         if do == "add":
@@ -750,9 +726,7 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        update_address_group = session.post(
-            url=self.base_url, json=payload, verify=False
-        )
+        update_address_group = self.session.post(url=self.base_url, json=payload)
         return update_address_group.json()["result"]
 
     def update_address_v6_group(self, name, object_name, do="add"):
@@ -765,7 +739,6 @@ class FortiManager:
                     do="remove" will remove the object from address group
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         get_addr_v6_group = self.get_address_v6_groups(name=name)
         members = get_addr_v6_group[0]["data"]["member"]
         if do == "add":
@@ -785,9 +758,7 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        update_address_group = session.post(
-            url=self.base_url, json=payload, verify=False
-        )
+        update_address_group = self.session.post(url=self.base_url, json=payload)
         return update_address_group.json()["result"]
 
     def delete_address_group(self, name):
@@ -796,7 +767,6 @@ class FortiManager:
         :param name: Specify the name of the address you wish to delete
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "delete",
             "params": [
@@ -807,9 +777,7 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        delete_address_group = session.post(
-            url=self.base_url, json=payload, verify=False
-        )
+        delete_address_group = self.session.post(url=self.base_url, json=payload)
         return delete_address_group.json()["result"]
 
     def delete_address_v6_group(self, name):
@@ -818,7 +786,6 @@ class FortiManager:
         :param name: Specify the name of the address you wish to delete
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "delete",
             "params": [
@@ -829,9 +796,7 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        delete_address_group = session.post(
-            url=self.base_url, json=payload, verify=False
-        )
+        delete_address_group = self.session.post(url=self.base_url, json=payload)
         return delete_address_group.json()["result"]
 
     # Firewall Virtual IP objects
@@ -843,10 +808,10 @@ class FortiManager:
         url = f"pm/config/adom/{self.adom}/obj/firewall/vip"
         if name:
             url = f"pm/config/adom/{self.adom}/obj/firewall/vip/{name}"
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_vip_objects = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_vip_objects = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_vip_objects.json()["result"]
 
@@ -858,10 +823,10 @@ class FortiManager:
         url = f"pm/config/global/pkg/{policy_package_name}/global/header/policy"
         if policyid:
             url = url + str(policyid)
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_global_header_policies = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_global_header_policies = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_global_header_policies.json()["result"]
 
@@ -872,10 +837,10 @@ class FortiManager:
         url = f"pm/config/adom/{self.adom}/obj/global/header/policy"
         if policyid:
             url = url + str(policyid)
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_firewall_header_policies = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_firewall_header_policies = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_firewall_header_policies.json()["result"]
 
@@ -887,10 +852,10 @@ class FortiManager:
         url = f"pm/config/global/pkg/{policy_package_name}/global/footer/policy"
         if policyid:
             url = url + str(policyid)
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_global_footer_policies = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_global_footer_policies = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_global_footer_policies.json()["result"]
 
@@ -901,10 +866,10 @@ class FortiManager:
         url = f"pm/config/adom/{self.adom}/obj/global/footer/policy"
         if policyid:
             url = url + str(policyid)
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_firewall_footer_policies = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_firewall_footer_policies = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_firewall_footer_policies.json()["result"]
 
@@ -919,7 +884,6 @@ class FortiManager:
         port,
         vdom="root",
     ):
-        session = self.login()
         payload = {
             "method": "exec",
             "params": [
@@ -940,11 +904,13 @@ class FortiManager:
             ],
         }
         payload.update(session=self.sessionid)
-        req = session.post(url=self.base_url, json=payload, verify=self.verify)
+        req = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return req.json()["result"]
 
     def get_policies_assigned_to_device(self, device, vdom):
-        session = self.session
         payload = {
             "method": "exec",
             "params": [
@@ -959,7 +925,10 @@ class FortiManager:
             ],
         }
         payload.update(session=self.sessionid)
-        req = session.post(url=self.base_url, json=payload, verify=self.verify)
+        req = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return req.json()["result"]
 
     # Firewall Interfaces
@@ -968,7 +937,6 @@ class FortiManager:
         Get interface details from the devices.
         :param device: Specify name of the device.
         """
-        session = self.login()
         payload = {
             "method": "exec",
             "params": [
@@ -983,23 +951,25 @@ class FortiManager:
             ],
         }
         payload.update(session=self.sessionid)
-        get_interfaces = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_interfaces = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_interfaces.json()["result"]
 
     def get_interfaces(self, device):
-        session = self.login()
         payload = {
             "method": "get",
             "params": [{"url": f"pm/config/device/{device}/global/system/interface"}],
         }
         payload.update(session=self.sessionid)
-        req = session.post(url=self.base_url, json=payload, verify=self.verify)
+        req = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return req.json()["result"]
 
     def get_interface(self, device, interface):
-        session = self.login()
         payload = {
             "method": "get",
             "params": [
@@ -1009,7 +979,10 @@ class FortiManager:
             ],
         }
         payload.update(session=self.sessionid)
-        req = session.post(url=self.base_url, json=payload, verify=self.verify)
+        req = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return req.json()["result"]
 
     # Services
@@ -1018,7 +991,6 @@ class FortiManager:
         Get interface details from the devices.
         :param device: Specify name of the device.
         """
-        session = self.login()
         payload = {
             "method": "get",
             "params": [
@@ -1029,7 +1001,10 @@ class FortiManager:
         }
 
         payload.update(session=self.sessionid)
-        services = session.post(url=self.base_url, json=payload, verify=self.verify)
+        services = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return services.json()["result"]
 
     def get_service(self, name):
@@ -1037,7 +1012,6 @@ class FortiManager:
         Get interface details from the devices.
         :param name: Specify name of the device.
         """
-        session = self.login()
         payload = {
             "method": "get",
             "params": [
@@ -1048,7 +1022,10 @@ class FortiManager:
         }
 
         payload.update(session=self.sessionid)
-        service = session.post(url=self.base_url, json=payload, verify=self.verify)
+        service = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return service.json()["result"]
 
     # Firewall Policies Methods
@@ -1062,10 +1039,10 @@ class FortiManager:
         url = f"pm/config/adom/{self.adom}/pkg/{policy_package_name}/firewall/policy/"
         if policyid:
             url = url + str(policyid)
-        session = self.login()
         payload = {"method": "get", "params": [{"url": url}], "session": self.sessionid}
-        get_firewall_policies = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_firewall_policies = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_firewall_policies.json()["result"]
 
@@ -1074,7 +1051,6 @@ class FortiManager:
         Get dhcp details from the devices.
         :param device: Specify name of the device.
         """
-        session = self.login()
         payload = {
             "method": "exec",
             "params": [
@@ -1089,8 +1065,9 @@ class FortiManager:
             ],
         }
         payload.update(session=self.sessionid)
-        get_interfaces = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        get_interfaces = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return get_interfaces.json()["result"]
 
@@ -1126,7 +1103,6 @@ class FortiManager:
                             logtraffic=2 Means Log All Sessions
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -1148,7 +1124,10 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        add_policy = session.post(url=self.base_url, json=payload, verify=self.verify)
+        add_policy = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return add_policy.json()
 
     def add_firewall_policy_with_v6(
@@ -1187,7 +1166,6 @@ class FortiManager:
                             logtraffic=2 Means Log All Sessions
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -1211,7 +1189,10 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        add_policy = session.post(url=self.base_url, json=payload, verify=self.verify)
+        add_policy = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return add_policy.json()
 
     def update_firewall_policy(self, policy_package_name, policyid, **data):
@@ -1223,7 +1204,6 @@ class FortiManager:
         :return: Response of status code with data in JSON Format
         """
         data = self.make_data(**data)
-        session = self.login()
         payload = {
             "method": "update",
             "params": [
@@ -1234,8 +1214,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        update_policy = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        update_policy = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return update_policy.json()["result"]
 
@@ -1246,7 +1227,6 @@ class FortiManager:
         :param policyid: Enter the policy ID of the policy you want to delete
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "delete",
             "params": [
@@ -1256,8 +1236,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        delete_policy = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        delete_policy = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return delete_policy.json()["result"]
 
@@ -1272,7 +1253,6 @@ class FortiManager:
         :param policyid: Specify the target policy
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "move",
             "params": [
@@ -1284,7 +1264,10 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        move_policy = session.post(url=self.base_url, json=payload, verify=self.verify)
+        move_policy = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return move_policy.json()["result"]
 
     def install_policy_package(self, package_name):
@@ -1293,7 +1276,6 @@ class FortiManager:
         :param package_name: Enter the package name you wish to install
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
         payload = {
             "method": "exec",
             "params": [
@@ -1304,8 +1286,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        install_package = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        install_package = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return install_package.json()["result"]
 
@@ -1420,10 +1403,12 @@ class FortiManager:
         :param payload: specify the valid payload in a dict.
         :return: returns response of the API call from FortiManager
         """
-        session = self.login()
         payload = payload
         payload.update({"session": self.sessionid})
-        custom_api = session.post(url=self.base_url, json=payload, verify=self.verify)
+        custom_api = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return custom_api.json()
 
     def set_adom(self, adom=None):
@@ -1442,7 +1427,6 @@ class FortiManager:
         Default value is set to 0
         """
 
-        session = self.login()
         payload = {
             "method": "add",
             "params": [
@@ -1458,8 +1442,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        create_script = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        create_script = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return create_script.json()["result"]
 
@@ -1468,14 +1453,14 @@ class FortiManager:
         Get all script templates from FortiManager
         """
 
-        session = self.login()
         payload = {
             "method": "get",
             "params": [{"url": f"/dvmdb/adom/{self.adom}/script/"}],
             "session": self.sessionid,
         }
-        create_script = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        create_script = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return create_script.json()["result"]
 
@@ -1492,7 +1477,6 @@ class FortiManager:
         Default value is set to 0
         """
 
-        session = self.login()
         payload = {
             "method": "update",
             "params": [
@@ -1518,8 +1502,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        update_script = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        update_script = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return update_script.json()["result"]
 
@@ -1529,7 +1514,6 @@ class FortiManager:
         :param name: Specify the script name which needs to be deleted
         """
 
-        session = self.login()
         payload = {
             "method": "delete",
             "params": [
@@ -1541,8 +1525,9 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        delete_script = session.post(
-            url=self.base_url, json=payload, verify=self.verify
+        delete_script = self.session.post(
+            url=self.base_url,
+            json=payload,
         )
         return delete_script.json()["result"]
 
@@ -1556,7 +1541,6 @@ class FortiManager:
         :param script_name: Specify the script name that should be executed on the specified devices
         """
 
-        session = self.login()
         payload = {
             "method": "exec",
             "params": [
@@ -1571,7 +1555,10 @@ class FortiManager:
             ],
             "session": self.sessionid,
         }
-        run_script = session.post(url=self.base_url, json=payload, verify=self.verify)
+        run_script = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return run_script.json()["result"]
 
     def run_script_on_single_device(
@@ -1584,7 +1571,6 @@ class FortiManager:
         :param script_name: Specify the script name that should be executed on the specified devices
         """
 
-        session = self.login()
         payload = {
             "method": "exec",
             "params": [
@@ -1600,7 +1586,10 @@ class FortiManager:
             "session": self.sessionid,
         }
 
-        run_script = session.post(url=self.base_url, json=payload, verify=self.verify)
+        run_script = self.session.post(
+            url=self.base_url,
+            json=payload,
+        )
         return run_script.json()["result"]
 
     def backup_config_of_fortiGate_to_tftp(
