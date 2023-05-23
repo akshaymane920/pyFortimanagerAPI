@@ -81,13 +81,13 @@ class FortiManager:
         Logout from FortiManager
         :return: Response of status code with data in JSON Format
         """
-        session = requests.session()
         payload = {
             "method": "exec",
             "params": [{"url": "sys/logout"}],
             "session": self.sessionid,
         }
-        logout = session.post(url=self.base_url, json=payload, verify=self.verify)
+        logout = self.session.post(url=self.base_url, json=payload)
+        self.sessionid = None
         return logout.json()["result"]
 
     # Adoms Methods
