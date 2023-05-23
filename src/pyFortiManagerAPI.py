@@ -17,7 +17,7 @@ class FortiManager:
     """
 
     def __init__(self, host, username="admin", password="admin", adom="root", protocol="https", verify=True,
-                 proxies={}):
+                 proxies=None):
         self.protocol = protocol
         self.host = host
         self.username = username
@@ -26,7 +26,8 @@ class FortiManager:
         self.sessionid = None
         self.session = None
         self.verify = verify
-        self.proxies = proxies
+        self.proxies = proxies if proxies is not None else {}
+        
         if protocol == "http":
             self.verify = False
         self.base_url = f"{protocol}://{self.host}/jsonrpc"
@@ -868,7 +869,7 @@ class FortiManager:
         get_global_header_policies = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_global_header_policies.json()["result"]
 
-    def get_firewall_header_policies(self, policy_package_name="default", policyid=False):
+    def get_firewall_header_policies(self, policyid=False):
         """
         Get adom header policies
         """
@@ -909,7 +910,7 @@ class FortiManager:
         get_global_footer_policies = session.post(url=self.base_url, json=payload, verify=self.verify)
         return get_global_footer_policies.json()["result"]
 
-    def get_firewall_footer_policies(self, policy_package_name="default", policyid=False):
+    def get_firewall_footer_policies(self, policyid=False):
         """
         Get adom footer policies
         """
