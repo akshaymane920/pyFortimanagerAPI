@@ -1,11 +1,6 @@
 __author__ = "Akshay Mane"
 __author__ = "Mathieu Millet"
 
-import json
-import os
-import sys
-from functools import wraps
-
 import requests
 import urllib3
 import logging
