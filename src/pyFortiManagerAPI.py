@@ -1,11 +1,11 @@
 __author__ = "Akshay Mane"
 __author__ = "Mathieu Millet"
 
+from typing import List, Any, Optional
+from os.path import join, normpath
+import logging
 import requests
 import urllib3
-import logging
-from typing import List, Any
-from os.path import join, normpath
 
 # Disable insecure connections warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -19,24 +19,26 @@ class FortiManager:
     def __init__(
         self,
         host,
-        username="admin",
-        password="admin",
         adom="root",
+        password="admin",
         protocol="https",
-        verify=True,
         proxies=None,
+        username="admin",
+        verify=True,
     ):
-        self.protocol = protocol
-        self.host = host
-        self.username = username
-        self.password = password
         self.adom = adom
-        self.sessionid = None
-        self.session = None
-        self.verify = verify
+        self.host = host
+        self.password = password
+        self.protocol = protocol
         self.proxies = proxies if proxies is not None else {}
+        self.session = None
+        self.sessionid: Optional[int] = None
+        self.username = username
 
         self.base_url = f"{protocol}://{self.host}/jsonrpc"
+
+        self.session = requests.Session()
+        self.session.verify = verify
 
     # Login Method
     def login(self):
