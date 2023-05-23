@@ -1690,3 +1690,9 @@ class FortiManager:
             }
         )
         return result
+
+    def __enter__(self):
+        self.login()
+
+    def __exit__(self, *args):
+        self.logout()
