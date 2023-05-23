@@ -1288,7 +1288,8 @@ class FortiManager:
                 "schedule": "schedule",
                 "action": "action",
                 "logtraffic": "logtraffic",
-                "comment": "comments"
+                "comment": "comments",
+                "status": "status"
             }
 
         data = {}
@@ -1351,6 +1352,7 @@ class FortiManager:
         action(int)                     : Action
         logtraffic(int)                 : Log Traffic
         comment(str)                    : Comments
+        status(int)                     : Status
         """
         return docs
 
