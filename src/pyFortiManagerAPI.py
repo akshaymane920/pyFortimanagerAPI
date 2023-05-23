@@ -27,9 +27,7 @@ class FortiManager:
         self.session = None
         self.verify = verify
         self.proxies = proxies if proxies is not None else {}
-        
-        if protocol == "http":
-            self.verify = False
+
         self.base_url = f"{protocol}://{self.host}/jsonrpc"
 
     # Login Method
