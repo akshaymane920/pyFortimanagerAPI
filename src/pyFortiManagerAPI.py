@@ -40,6 +40,11 @@ class FortiManager:
         self.session = requests.Session()
         self.session.verify = verify
 
+        if self.proxies is False:
+            self.session.trust_env = False
+        elif len(self.proxies) > 0:
+            self.session.proxies.update(self.proxies)
+
     # Login Method
     def login(self):
         """
@@ -47,20 +52,13 @@ class FortiManager:
         :return: Session
         """
 
-        if self.sessionid is None or self.session is None:
-            self.session = requests.session()
+        if self.sessionid is None:
             # check for explicit proxy handling
             # proxies = False means force not using proxies
             # proxies set like described in https://2.python-requests.org/en/latest/user/advanced/#proxies
             #  means override environment proxy settings
             # otherwise use environment settings
-            if self.proxies is False:
-                self.session.trust_env = False
 
-            elif len(self.proxies) != 0:
-                self.session.proxies.update(self.proxies)
-            else:
-                self.session.trust_env = True  # obsolete as it is default
             payload = {
                 "method": "exec",
                 "params": [
