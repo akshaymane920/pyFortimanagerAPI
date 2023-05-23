@@ -46,10 +46,10 @@ class FortiManager:
             self.session.proxies.update(self.proxies)
 
     # Login Method
-    def login(self):
+    def login(self) -> None:
         """
         Log in to FortiManager with the details provided during object creation of this class
-        :return: Session
+        :return: None
         """
 
         if self.sessionid is None:
@@ -69,20 +69,12 @@ class FortiManager:
                 ],
                 "session": self.sessionid,
             }
-            login = self.session.post(
-                url=self.base_url, json=payload, verify=self.verify
-            )
-            if (
-                login.json()["result"][0]["status"]["message"]
-                == "No permission for the resource"
-            ):
-                return self.session
-            elif "session" in login.json():
-                self.sessionid = login.json()["session"]
-                return self.session
+            login = self.session.post(url=self.base_url, json=payload)
 
-        else:
-            return self.session
+            if not "session" in login.json():
+                raise ValueError("Credentials invalid")
+
+            self.sessionid = login.json()["session"]
 
     def logout(self):
         """
