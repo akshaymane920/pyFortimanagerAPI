@@ -16,7 +16,9 @@ class Lock:
     This class is used to lock an ADOM with a context manager
     """
 
-    def __init__(self, base_url: str, adom: str, session: requests.Session, sessionid: int) -> None:
+    def __init__(
+        self, base_url: str, adom: str, session: requests.Session, sessionid: int
+    ) -> None:
         self.adom = adom
         self.base_url = base_url
         self.locked = False
@@ -169,12 +171,20 @@ class FortiManager:
         )
         return get_adoms.json()["result"]
 
+    def get_lock(self, adom: str = None):
+        "Generate a Lock for the specified adom"
+
+        adom = self.adom if adom is None else adom
+        return Lock(self.base_url, adom, self.session, self.sessionid)
+
     def __lock_unlock_adom(self, method, name=None):
         """
         This function has been deprecated, use Lock() with contextmanager
         """
 
-        logging.warning("This function has been deprecated, use Lock() with contextmanager")
+        logging.warning(
+            "This function has been deprecated, use Lock() with contextmanager"
+        )
         name = self.adom if name is None else name
         adom_lock = Lock(self.base_url, name, self.session, self.sessionid)
 
@@ -188,7 +198,9 @@ class FortiManager:
         This function has been deprecated, use Lock() with contextmanager
         """
 
-        logging.warning("This function has been deprecated, use Lock() with contextmanager")
+        logging.warning(
+            "This function has been deprecated, use Lock() with contextmanager"
+        )
         name = self.adom if name is None else name
         adom_lock = Lock(self.base_url, name, self.session, self.sessionid)
 
