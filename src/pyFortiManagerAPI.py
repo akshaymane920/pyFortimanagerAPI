@@ -1371,27 +1371,30 @@ class FortiManager:
 
     @staticmethod
     def make_data(_for="policy", **kwargs):
-        object_maps = {
-            "allow_routing": "allow-routing",
-            "associated_interface": "associated-interface",
-            "comment": "comment",
-            "object_name": "name",
-            "subnet": "subnet",
-            "object_type": "type",
-        }
-        policy_maps = {
-            "name": "name",
-            "source_interface": "srcintf",
-            "source_address": "srcaddr",
-            "destination_interface": "dstintf",
-            "destination_address": "dstaddr",
-            "service": "service",
-            "schedule": "schedule",
-            "action": "action",
-            "logtraffic": "logtraffic",
-            "comment": "comments",
-        }
 
+        object_maps = \
+            {
+                "allow_routing": "allow-routing",
+                "associated_interface": "associated-interface",
+                "comment": "comment",
+                "object_name": "name",
+                "subnet": "subnet",
+                "object_type": "type"
+            }
+        policy_maps = \
+            {
+                "name": "name",
+                "source_interface": "srcintf",
+                "source_address": "srcaddr",
+                "destination_interface": "dstintf",
+                "destination_address": "dstaddr",
+                "service": "service",
+                "schedule": "schedule",
+                "action": "action",
+                "logtraffic": "logtraffic",
+                "comment": "comments",
+                "status": "status"
+            }
         data = {}
         for key, value in kwargs.items():
             if _for == "policy":
@@ -1450,6 +1453,7 @@ class FortiManager:
         action(int)                     : Action
         logtraffic(int)                 : Log Traffic
         comment(str)                    : Comments
+        status(int)                     : Status
         """
         return docs
 
@@ -1702,6 +1706,7 @@ class FortiManager:
             }
         )
         return result
+
 
     def __enter__(self):
         self.login()
