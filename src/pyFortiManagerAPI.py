@@ -1710,6 +1710,7 @@ class FortiManager:
 
     def __enter__(self):
         self.login()
+        return self
 
     def __exit__(self, *args):
         self.logout()
