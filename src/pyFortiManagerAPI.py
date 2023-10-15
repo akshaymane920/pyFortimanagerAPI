@@ -1,5 +1,4 @@
 __author__ = "Akshay Mane"
-__author__ = "Mathieu Millet"
 
 import json
 import os
@@ -967,23 +966,6 @@ class FortiManager:
         return req.json()["result"]
 
     # Firewall Interfaces
-    def get_device_interfaces(self, device):
-        """
-        Get interface details from the devices.
-        :param device: Specify name of the device.
-        """
-        session = self.login()
-        payload = \
-            {
-                "method": "exec",
-                "params": [
-                    {"url": "sys/proxy/json",
-                     "data": {"target": [f"adom/{self.adom}/device/{device}"], "action": "get",
-                              "resource": "/api/v2/monitor/system/interface/select?&global=1&include_vlan=1"}}]}
-        payload.update(session=self.sessionid)
-        get_interfaces = session.post(url=self.base_url, json=payload, verify=self.verify)
-        return get_interfaces.json()["result"]
-
     def get_interfaces(self, device):
         session = self.login()
         payload = {"method": "get", "params": [{"url": f"pm/config/device/{device}/global/system/interface"}]}
