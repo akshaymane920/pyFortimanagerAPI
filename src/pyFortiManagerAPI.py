@@ -518,6 +518,26 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return update_dynamic_obj.json()["result"]
 
+    def add_dynamic_group(self, name, device, vdom, members: list, comment=None):
+        """
+        Add per device mapping in address object.
+        :param name: name of the address object.
+        :param device: name of the device which is to be mapped in this object
+        :param comment: comment
+        :return: returns response of the request from FortiManager.
+        """
+        session = self.login()
+        payload = {
+            "method": "add",
+            "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/addrgrp/{name}/dynamic_mapping",
+                        "data": [{"_scope": [{"name": f"{device}", "vdom": vdom}],
+                                  "member": members,
+                                  }]}],
+            "session": self.sessionid}
+        add_dynamic_grp = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return add_dynamic_grp.json()["result"]
+
     def update_firewall_address_object(self, name, **data):
         """
         Get the name of the address object and update it with your data
@@ -1248,6 +1268,34 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return install_package.json()["result"]
 
+    def install_policy_package_to_device(self, package_name, device, vdom):
+        """
+        Install the policy package on your Forti-gate Firewalls
+        :param vdom: Sepcify the VDOM
+        :param device: Sepcify the target device name
+        :param package_name: Enter the package name you wish to install
+        :return: Response of status code with data in JSON Format
+        """
+        session = self.login()
+        payload = \
+            {
+                "method": "exec",
+                "params": [
+                    {
+                        "data": {
+                            "adom": f"{self.adom}",
+                            "pkg": f"{package_name}",
+                            "scope": [{"name": device, "vdom": vdom}],
+                        },
+                        "url": "securityconsole/install/package"
+                    }
+                ],
+                "session": self.sessionid
+            }
+        install_package = session.post(
+            url=self.base_url, json=payload, verify=self.verify)
+        return install_package.json()["result"]
+
     @staticmethod
     def make_data(_for="policy", **kwargs):
         object_maps = \
@@ -1565,4 +1613,179 @@ class FortiManager:
         run_script = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return run_script.json()["result"]
-    
+
+    def quick_db_install(self, device_name: str, vdom: str):
+        session = self.login()
+        payload = {
+            "method": "exec",
+            "params": [{
+                "url": "/securityconsole/install/device",
+                "data": {"adom": self.adom, "scope": [{"name": device_name, "vdom": vdom}]}}
+            ],
+            "session": self.sessionid
+        }
+        quick_db_install = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return quick_db_install.json()["result"]
+
+    def track_quick_db_install(self, taskid):
+        session = self.login()
+        payload = {
+            "method": "get",
+            "params":
+                [{"url": f"/task/task/{taskid}"}
+
+                 ],
+            "session": self.sessionid
+        }
+        track_quick_db_install = session.post(url=self.base_url, json=payload, verify=False)
+        return track_quick_db_install.json()["result"]
+
+    def create_interface(self, device, name, interface, role, vdom, vlan, ip, mask, alias):
+        session = self.login()
+        payload = {"method": "add",
+                   "params": [
+                       {"url": f"pm/config/device/{device}/global/system/interface",
+                        "data":
+                            {"name": name,
+                             "ip": [ip, mask],
+                             "mode": 0,
+                             "allowaccess": 2,
+                             "security-mode": 1,
+                             "status": True,
+                             "description": "Created using API",
+                             "vdom": vdom,
+                             "vlanid": vlan,
+                             "type": 1,
+                             "interface": interface,
+                             "alias": alias,
+                             "role": role,
+                             "vrf": 0}}],
+                   "session": self.sessionid
+                   }
+        create_interface = session.post(url=self.base_url, json=payload, verify=False)
+        return create_interface.json()["result"]
+
+    def create_zone(self, device_name, zone, vdom):
+        session = self.login()
+        payload = {"method": "add",
+                   "params": [
+                       {"url": f"pm/config/device/{device_name}/vdom/{vdom}/system/zone",
+                        "data": {"name": zone, }}],
+                   "session": self.sessionid
+                   }
+        create_zone = session.post(url=self.base_url, json=payload, verify=False)
+        return create_zone.json()["result"]
+
+    def get_zones(self, device_name, vdom):
+        session = self.login()
+        payload = {"method": "get",
+                   "params": [
+                       {"url": f"pm/config/device/{device_name}/vdom/{vdom}/system/zone"}
+                   ],
+                   "session": self.sessionid
+                   }
+        get_zones = session.post(url=self.base_url, json=payload, verify=False)
+        return get_zones.json()["result"]
+
+    def get_zone(self, device_name, zone, vdom):
+        session = self.login()
+        payload = {"method": "get",
+                   "params": [
+                       {"url": f"pm/config/device/{device_name}/vdom/{vdom}/system/zone/{zone}"}
+                   ],
+                   "session": self.sessionid
+                   }
+        get_zones = session.post(url=self.base_url, json=payload, verify=False)
+        return get_zones.json()["result"]
+
+    def assign_interfaces_to_zone(self, device_name, zone, interfaces_list: list, vdom):
+        session = self.login()
+        payload = {"method": "set",
+                   "params": [
+                       {"url": f"pm/config/device/{device_name}/vdom/{vdom}/system/zone",
+                        "data": {"name": zone,
+                                 "interface": interfaces_list}}],
+                   "session": self.sessionid
+                   }
+        assign_interface_to_zone = session.post(url=self.base_url, json=payload, verify=False)
+        return assign_interface_to_zone.json()["result"]
+
+    def create_device_group(self, name, description=""):
+        session = self.login()
+        payload = {"method": "add",
+                   "params": [{"url": f"/dvmdb/adom/{self.adom}/group/{name}",
+                               "data": {"name": name, "desc": description, "type": "normal",
+                                        "meta fields": {}, "os_type": "fos"}}],
+                   "session": self.sessionid
+                   }
+        create_device_group = session.post(url=self.base_url, json=payload, verify=False)
+        return create_device_group.json()["result"]
+
+    def add_device_to_group(self, group, device, vdom):
+        session = self.login()
+        payload = {
+            "method": "add",
+            "params": [{"url": f"/dvmdb/adom/{self.adom}/group/{group}/object member",
+                        "data": [{"name": device, "vdom": vdom}]}],
+            "session": self.sessionid
+        }
+        add_device_in_group = session.post(url=self.base_url, json=payload, verify=False)
+        return add_device_in_group.json()["result"]
+
+    def delete_device_to_group(self, group, device, vdom):
+        session = self.login()
+        payload = {
+            "method": "delete",
+            "params": [{"url": f"/dvmdb/adom/{self.adom}/group/{group}/object member",
+                        "data": [{"name": device, "vdom": vdom}]}],
+            "session": self.sessionid
+        }
+        delete_device_from_group = session.post(url=self.base_url, json=payload, verify=False)
+        return delete_device_from_group.json()["result"]
+
+    def get_device(self, device):
+        """
+        :return: returns list of devices added in FortiManager
+        """
+        session = self.login()
+        payload = {"method": "get", "params": [
+            {"url": f"/dvmdb/adom/{self.adom}/device/{device}"}]}
+        payload.update({"session": self.sessionid})
+        get_device = session.post(
+            url=self.base_url, json=payload, verify=False)
+        return get_device.json()
+
+    def create_script_group(self, name: str, target: int = 0):
+        """
+        Create a script template and store it on FortiManager
+        :param name: Specify a name for the script
+        :param script_content: write the cli commands
+        :param target:
+                If Target = 0 than script runs on Device database
+                If Target = 1 than script runs on Remote FortiGate CLI
+                If Target = 2 than script runs on Policy package or Adom Database
+        Default value is set to 0
+        """
+
+        session = self.login()
+        payload = {"method": "add",
+                   "params": [{"url": f"/dvmdb/adom/{self.adom}/script/",
+                               "data": {"name": name,
+                                        "desc": "", "target": target,
+                                        "type": 3,
+                                        "object member": []}}
+                              ],
+                   "session": self.sessionid
+                   }
+        create_script_group = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return create_script_group.json()["result"]
+
+    def get_dhcp_servers(self, device, vdom):
+        session = self.login()
+        payload = {"method": "get",
+                   "params": [{
+                       "url": f"pm/config/device/{device}/vdom/{vdom}/system/dhcp/server"}],
+                   "session": self.sessionid
+                   }
+        get_dhcp_server = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return get_dhcp_server.json()["result"]
