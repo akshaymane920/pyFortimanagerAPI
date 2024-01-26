@@ -1004,13 +1004,12 @@ class FortiManager:
     # Services
     def get_services(self):
         """
-                Get interface details from the devices.
-                :param device: Specify name of the device.
-                """
+        Get Services from FortiManager
+        """
         session = self.login()
         payload = \
             {"method": "get",
-             "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/service/custom/Custom_Service_1"}]}
+             "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/service/custom"}]}
 
         payload.update(session=self.sessionid)
         services = session.post(url=self.base_url, json=payload, verify=self.verify)
@@ -1018,8 +1017,8 @@ class FortiManager:
 
     def get_service(self, name):
         """
-        Get interface details from the devices.
-        :param name: Specify name of the device.
+        Get a single services from FortiManager
+        :param name: Specify name of the service.
         """
         session = self.login()
         payload = \
@@ -1028,6 +1027,34 @@ class FortiManager:
         payload.update(session=self.sessionid)
         service = session.post(url=self.base_url, json=payload, verify=self.verify)
         return service.json()["result"]
+
+    # Service Groups
+    def get_service_groups(self):
+        """
+        Retrieve all service groups
+        """
+        session = self.login()
+        payload = \
+            {"method": "get",
+             "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/service/group"}]}
+
+        payload.update(session=self.sessionid)
+        services = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return services.json()["result"]
+
+    def get_service_group(self, name):
+        """
+        Retrieve a single service group by name
+        :param name: Specify name of the service group.
+        """
+        session = self.login()
+        payload = \
+            {"method": "get",
+             "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/service/group/{name}"}]}
+
+        payload.update(session=self.sessionid)
+        services = session.post(url=self.base_url, json=payload, verify=self.verify)
+        return services.json()["result"]
 
     # Firewall Policies Methods
     def get_firewall_policies(self, policy_package_name="default", policyid=False):
