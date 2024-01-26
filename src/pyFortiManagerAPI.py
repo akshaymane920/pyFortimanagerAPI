@@ -1004,9 +1004,8 @@ class FortiManager:
     # Services
     def get_services(self):
         """
-                Get interface details from the devices.
-                :param device: Specify name of the device.
-                """
+        Get Services from FortiManager
+        """
         session = self.login()
         payload = \
             {"method": "get",
@@ -1018,8 +1017,8 @@ class FortiManager:
 
     def get_service(self, name):
         """
-        Get interface details from the devices.
-        :param name: Specify name of the device.
+        Get a single services from FortiManager
+        :param name: Specify name of the service.
         """
         session = self.login()
         payload = \
