@@ -621,6 +621,34 @@ This function leverages **_create_script()_** and **_run_script_on_single_device
 * :param device_name: Specify the name of the device
 * :param vdom: Specify the Vdom
 
+# User Operations : Working with services
+
+### 43) Get all services
+
+```python
+>>> fortimngr.get_services()
+```
+
+### 44) Get single service by name
+
+```python
+>>> fortimngr.get_service("RDP")
+```
+
+# User Operations : Working with service groups
+
+### 45) Get all service groups
+
+```python
+>>> fortimngr.get_service_groups()
+```
+
+### 46) Get single service group by name
+
+```python
+>>> fortimngr.get_service_group("Web Access")
+```
+
 ## Contributing
 - Being new to Python and this being my first publish, to get this module fully working for all of us, the Pull requests are welcome.
 
