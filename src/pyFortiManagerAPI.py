@@ -419,27 +419,44 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return get_address_objects.json()["result"]
 
-    def add_firewall_address_object(self, name, subnet: list, associated_interface="any", object_type=0,
-                                    allow_routing=0):
+    def add_firewall_address_object(self, name, subnet=None, associated_interface="any", object_type=None,
+                                    allow_routing=0, fqdn=None):
         """
-        Create an address object using provided info
+        Create an address object using provided info (ipmask/subnet or FQDN).
         :param name: Enter object name that is to be created
         :param associated_interface: Provide interface to which this object belongs if any. {Default is kept any}
-        :param subnet: Enter the subnet in a list format eg.["1.1.1.1", "255.255.255.255"]
-        :param object_type:
-        :param allow_routing: Set routing if needed
+        :param subnet: IP/netmask as a list eg. ["1.1.1.1", "255.255.255.255"], or a CIDR string eg. "1.1.1.1/32".
+        :param fqdn: Fully qualified domain name for an FQDN object (mutually exclusive with subnet).
+        :param object_type: API type override; defaults to 0 (ipmask) with subnet, or "fqdn" with fqdn.
+        :param allow_routing: Set routing if needed (ipmask objects only; omitted for FQDN).
         :return: Response of status code with data in JSON Format
         """
-        session = self.login()
-        payload = {
-            "method": "add",
-            "params": [{"data": {
+        if subnet is not None and fqdn is not None:
+            raise ValueError("Specify only one of subnet or fqdn.")
+        if subnet is None and fqdn is None:
+            raise ValueError("Provide subnet for an ipmask address or fqdn for an FQDN address.")
+
+        if fqdn is not None:
+            data = {
+                "associated-interface": associated_interface,
+                "name": name,
+                "fqdn": fqdn,
+                "type": "fqdn" if object_type is None else object_type,
+            }
+        else:
+            data = {
                 "allow-routing": allow_routing,
                 "associated-interface": associated_interface,
                 "name": name,
                 "subnet": subnet,
-                "type": object_type},
-                "url": f"pm/config/adom/{self.adom}/obj/firewall/address"}],
+                "type": 0 if object_type is None else object_type,
+            }
+
+        session = self.login()
+        payload = {
+            "method": "add",
+            "params": [{"data": data,
+                        "url": f"pm/config/adom/{self.adom}/obj/firewall/address"}],
             "session": self.sessionid}
 
         add_address_object = session.post(
@@ -558,9 +575,8 @@ class FortiManager:
                 ],
                 "session": self.sessionid
             }
-        payload = repr(payload)
         update_firewall_object = session.post(
-            url=self.base_url, data=payload, verify=self.verify)
+            url=self.base_url, json=payload, verify=self.verify)
         return update_firewall_object.json()["result"]
 
     def update_firewall_address_v6_object(self, name, **data):
@@ -583,9 +599,8 @@ class FortiManager:
                 ],
                 "session": self.sessionid
             }
-        payload = repr(payload)
         update_firewall_object = session.post(
-            url=self.base_url, data=payload, verify=self.verify)
+            url=self.base_url, json=payload, verify=self.verify)
         return update_firewall_object.json()["result"]
 
     def delete_firewall_address_object(self, object_name):
@@ -1217,15 +1232,17 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return delete_policy.json()["result"]
 
-    def move_firewall_policy(self, policy_package_name, move_policyid=int, option="before", policyid=int):
+    def move_firewall_policy(self, policy_package_name, move_policyid, option="before", policyid=None):
         """
         Move the policy as per your needs
         :param policy_package_name: Enter the policy package name in which you policy belongs
         :param move_policyid: Enter the policy ID of the policy you want to move
         :param option: Specify if you want to move above("before") the target policy or below("after") {default: before}
-        :param policyid: Specify the target policy
+        :param policyid: Specify the target policy (required)
         :return: Response of status code with data in JSON Format
         """
+        if policyid is None:
+            raise TypeError("move_firewall_policy() missing required argument: 'policyid'")
         session = self.login()
         payload = \
             {
@@ -1305,6 +1322,7 @@ class FortiManager:
                 "comment": "comment",
                 "object_name": "name",
                 "subnet": "subnet",
+                "fqdn": "fqdn",
                 "object_type": "type"
             }
         policy_maps = \
@@ -1347,6 +1365,7 @@ class FortiManager:
         comment(str)                : Comments
         object_name(str)            : Address Name
         subnet[list]                : IP/Netmask
+        fqdn(str)                   : FQDN (FQDN-type objects)
         object_type(int)            : Type
         """
         return docs
