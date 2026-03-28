@@ -1,4 +1,5 @@
 __author__ = "Akshay Mane"
+__version__ = "0.2.6"
 
 import json
 import os
@@ -1443,10 +1444,10 @@ class FortiManager:
         :return: returns response of the API call from FortiManager
         """
         session = self.login()
-        payload = payload
-        payload.update({"session": self.sessionid})
+        body = dict(payload)
+        body["session"] = self.sessionid
         custom_api = session.post(
-            url=self.base_url, json=payload, verify=self.verify)
+            url=self.base_url, json=body, verify=self.verify)
         return custom_api.json()
 
     def set_adom(self, adom=None):
