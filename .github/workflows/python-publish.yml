@@ -1,4 +1,5 @@
 # Upload to PyPI when a GitHub Release is published.
+# Releases are created automatically when you push a version tag (see create-release-on-tag.yml).
 # Requires repo secret PYFORTIMANAGERAPI_TOKEN (PyPI API token with upload scope for this project).
 #
 # If upload fails with HTTP 400: the version is usually already on PyPI (re-running the workflow

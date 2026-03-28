@@ -17,6 +17,17 @@ pip install pyFortiManagerAPI
 
 Release notes and version history: [CHANGELOG.md](CHANGELOG.md).
 
+### Releasing (maintainers)
+
+Bump `setup.py` and `CHANGELOG.md`, push your branch, then tag and push the tag (the `v` prefix plus version must match `setup.py`):
+
+```shell
+git tag v0.2.5
+git push origin v0.2.5
+```
+
+GitHub Actions will create a **published** release from that tag and then upload the package to **PyPI** (requires the `PYFORTIMANAGERAPI_TOKEN` repository secret).
+
 ## Getting Started
 
 1. Creating Instance of the Module

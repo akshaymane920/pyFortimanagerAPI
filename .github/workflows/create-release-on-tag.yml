@@ -1,0 +1,54 @@
+# When you push a version tag (e.g. v0.2.5), this workflow creates a published GitHub Release.
+# That in turn triggers "Upload Python Package" (release: published) → PyPI upload.
+#
+# How to release:
+#   1. Bump version in setup.py (+ CHANGELOG.md as you prefer), commit, push branch.
+#   2. git tag vX.Y.Z
+#   3. git push origin vX.Y.Z
+#
+# The tag (without leading "v") must match the version string in setup.py.
+
+name: Create GitHub Release on tag
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag matches setup.py version
+        run: |
+          python << 'EOF'
+          import os, re
+          ref = os.environ["GITHUB_REF"]
+          if not ref.startswith("refs/tags/v"):
+              raise SystemExit(f"Unexpected ref: {ref}")
+          tag_ver = ref.removeprefix("refs/tags/v")
+          text = open("setup.py", encoding="utf-8").read()
+          m = re.search(r"version\s*=\s*['\"]([^'\"]+)['\"]", text)
+          if not m:
+              raise SystemExit("Could not find version in setup.py")
+          setup_ver = m.group(1)
+          if tag_ver != setup_ver:
+              raise SystemExit(
+                  f"Tag version {tag_ver!r} does not match setup.py version {setup_ver!r}"
+              )
+          print(f"Version check OK: {tag_ver}")
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
