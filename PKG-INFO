@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pyFortiManagerAPI
-Version: 0.1.1
+Version: 0.2.4
 Summary: A Python wrapper for the FortiManager REST API
 Home-page: https://github.com/akshaymane920/pyFortiManagerAPI
 Author: Akshay Mane

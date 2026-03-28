@@ -13,6 +13,10 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install pyForti
 pip install pyFortiManagerAPI
 ```
 
+## Changelog
+
+Release notes and version history: [CHANGELOG.md](CHANGELOG.md).
+
 ## Getting Started
 
 1. Creating Instance of the Module
@@ -135,7 +139,15 @@ Optional settings:
 
 * name: Specify object name that is to be created
 * associated_interface: Provide interface to which this object belongs if any. {Default is kept any}
-* subnet: Specify the subnet in a list format eg.["1.1.1.1", "255.255.255.255"]
+* subnet: Specify the subnet in a list format eg.["1.1.1.1", "255.255.255.255"], or a CIDR string if your FortiManager expects it (e.g. `"192.168.0.1/32"`). Use **either** `subnet` **or** `fqdn`, not both.
+* fqdn: For FQDN-type objects, pass the hostname (e.g. `fqdn="www.example.com"`). Sets API type `"fqdn"` by default; override with `object_type` if your FM version requires a different value.
+
+Create an FQDN address object:
+
+```python
+>>> fortimngr.add_firewall_address_object(name="Example_FQDN",
+                                          fqdn="www.example.com")
+```
 
 ### 9bis) Create an v6 address object.
 
@@ -155,7 +167,7 @@ Optional settings:
 
 ```python
 >>> fortimngr.update_firewall_address_object(name="TestObject",
-                                             associate_interface="port1",
+                                             associated_interface="port1",
                                              comment="Updated using API",
                                              subnet=["2.2.2.2","255.255.255.255"]
                                              )
@@ -168,7 +180,7 @@ Optional settings:
 - ## Parameters
 
 * name: Enter the name of the object that needs to be updated
-* data: You can get the **kwargs parameters with "show_params_for_object_update()" method or "
+* data: You can get the **kwargs parameters with `show_params_for_object_update()` or `show_params_for_object_v6_update()`.
 
 ### 11) Delete address object.
 
@@ -367,19 +379,27 @@ Optional arguments:
 
 ### 26) Get global header policy
 
-fortimngr.get_global_header_policies
+```python
+>>> fortimngr.get_global_header_policies()
+```
 
 ### 27) Get header policy
 
-fortimngr.get_firewall_header_policies
+```python
+>>> fortimngr.get_firewall_header_policies()
+```
 
 ### 28) Get global footer policy
 
-fortimngr.get_global_footer_policies
+```python
+>>> fortimngr.get_global_footer_policies()
+```
 
 ### 29) Get footer policy
 
-fortimngr.get_firewall_footer_policies
+```python
+>>> fortimngr.get_firewall_footer_policies()
+```
 
 ### 30) Create your own policy in your Policy Package.
 
@@ -470,7 +490,7 @@ fortimngr.get_firewall_footer_policies
 *  policy_package_name: Enter the policy package name in which you policy belongs.
 *  move_policyid: Enter the policy ID of the policy you want to move.
 *  option: Specify if you want to move the policy above("before") the target policy or below("after") {default: before}.
-*  policyid: Specify the target policy.
+*  policyid: **Required.** Target policy ID (as of v0.2.4; omitting it raises `TypeError`).
 ---
 
 

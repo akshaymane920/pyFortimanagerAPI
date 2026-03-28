@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(
     name='pyFortiManagerAPI',
     description='A Python wrapper for the FortiManager REST API',
-    version='0.2.3',
+    version='0.2.4',
     py_modules=["pyFortiManagerAPI"],
     package_dir={'': 'src'},
     keywords=['FortiManager', 'RestAPI', 'API', 'FortiGate', 'Fortinet', "python", "FortiManager API",
@@ -18,6 +18,8 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Operating System :: OS Independent',
     ],
     long_description=long_description,
