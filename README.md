@@ -22,7 +22,7 @@ Release notes and version history: [CHANGELOG.md](CHANGELOG.md).
 Bump `setup.py` and `CHANGELOG.md`, push your branch, then tag and push the tag (the `v` prefix plus version must match `setup.py`):
 
 ```shell
-git tag v0.2.5
+git tag v0.2.5   # must match version in setup.py (with leading v)
 git push origin v0.2.5
 ```
 
@@ -47,7 +47,7 @@ Optional settings:
 - adom: Default is adom=root.
 - protocol: Default is protocol=https. If set to protocol=http, then verify=False is set automatically.
 - verify: Default is verify=True. If your Fortimanager has a self-signed certificate, set verify=False.
-- proxies: Default is an empty dictionary (which means: use the environement variables). If you dont' want to use proxies, even if they are defined in your environment variables, then set 'proxies' to false. If you want to use other proxies than defined in your environment then you go like this:
+- proxies: Default is `None` (treated like an empty dict: use environment proxy settings). If you dont' want to use proxies, even if they are defined in your environment variables, then set `proxies` to `False`. If you want to use other proxies than defined in your environment then you go like this:
     ```python
         proxies = {
             'http': 'http://10.10.1.10:3128',
