@@ -22,8 +22,8 @@ Release notes and version history: [CHANGELOG.md](CHANGELOG.md).
 Bump `setup.py` and `CHANGELOG.md`, push your branch, then tag and push the tag (the `v` prefix plus version must match `setup.py`):
 
 ```shell
-git tag v0.2.6   # must match version in setup.py (with leading v)
-git push origin v0.2.6
+git tag v0.2.7   # must match version in setup.py (with leading v)
+git push origin v0.2.7
 ```
 
 GitHub Actions will create a **published** release from that tag and upload the package to **PyPI** on that same tag push (requires the `PYFORTIMANAGERAPI_TOKEN` repository secret). If you publish a release only from the GitHub UI, the PyPI workflow also runs on `release: published`.

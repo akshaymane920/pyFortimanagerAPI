@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7] - 2026-03-29
+
+### Fixed
+
+- PyPI upload failures (HTTP 400) when GitHub Actions used the latest `3.x` Python (e.g. 3.14): publish workflow now builds on **Python 3.12** with pinned `setuptools`, strict `twine check`, and clearer `twine`/publish logging.
+- Declare `license='MIT'` in `setup.py` for consistent package metadata.
+
 ## [0.2.6] - 2026-03-29
 
 ### Added
@@ -53,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `.gitignore`: ignore `.venv` for local virtual environments.
 
+[0.2.7]: https://github.com/akshaymane920/pyFortiManagerAPI/releases/tag/v0.2.7
 [0.2.6]: https://github.com/akshaymane920/pyFortiManagerAPI/releases/tag/v0.2.6
 [0.2.5]: https://github.com/akshaymane920/pyFortiManagerAPI/releases/tag/v0.2.5
 [0.2.4]: https://github.com/akshaymane920/pyFortiManagerAPI/releases/tag/v0.2.4

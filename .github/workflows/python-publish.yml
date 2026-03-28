@@ -6,8 +6,9 @@
 #
 # Requires repo secret PYFORTIMANAGERAPI_TOKEN (PyPI API token with upload scope for this project).
 #
-# If upload fails with HTTP 400: the version is usually already on PyPI (re-running the workflow
-# or publishing the same version twice). Fix: confirm on https://pypi.org/project/pyFortiManagerAPI/
+# If upload fails with HTTP 400: often (1) version already on PyPI, (2) build used bleeding-edge
+# Python (e.g. 3.14) + setuptools producing metadata PyPI rejects — we pin Python 3.12 below,
+# (3) invalid/expired PYFORTIMANAGERAPI_TOKEN or wrong project scope (check PyPI token settings).
 
 name: Upload Python Package
 
@@ -48,17 +49,24 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          # Avoid 3.x resolving to very new Python (e.g. 3.14); those builds can trigger PyPI 400s.
+          python-version: "3.12"
 
       - name: Install build tools
         run: |
           python -m pip install --upgrade pip
-          pip install build
+          pip install "setuptools>=69.0,<76" wheel build
 
       - name: Build package
         run: python -m build
 
+      - name: Twine check (strict)
+        run: pip install twine && twine check --strict dist/*
+
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          user: __token__
           password: ${{ secrets.PYFORTIMANAGERAPI_TOKEN }}
+          attestations: false
+          verbose: true
