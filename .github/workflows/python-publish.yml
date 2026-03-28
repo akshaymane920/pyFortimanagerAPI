@@ -1,15 +1,20 @@
-# Upload to PyPI when a GitHub Release is published.
-# Releases are created automatically when you push a version tag (see create-release-on-tag.yml).
+# Upload to PyPI when you push a version tag OR when a release is published manually.
+#
+# Why both triggers? Releases created by GitHub Actions using the default GITHUB_TOKEN
+# (see create-release-on-tag.yml) do NOT start workflows listening only to release:published
+# (GitHub blocks recursive workflow runs). Tag push runs this job directly.
+#
 # Requires repo secret PYFORTIMANAGERAPI_TOKEN (PyPI API token with upload scope for this project).
 #
 # If upload fails with HTTP 400: the version is usually already on PyPI (re-running the workflow
 # or publishing the same version twice). Fix: confirm on https://pypi.org/project/pyFortiManagerAPI/
-# — if the version exists, bump setup.py and tag a new release, or use PyPI "yank" only if the
-# published files are wrong (you cannot replace files in place).
 
 name: Upload Python Package
 
 on:
+  push:
+    tags:
+      - "v*"
   release:
     types: [published]
 
@@ -19,6 +24,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Verify tag matches setup.py version
+        run: |
+          python << 'EOF'
+          import os, re
+          ref = os.environ["GITHUB_REF"]
+          if not ref.startswith("refs/tags/v"):
+              raise SystemExit(f"Expected refs/tags/v*, got {ref!r}")
+          tag_ver = ref.removeprefix("refs/tags/v")
+          text = open("setup.py", encoding="utf-8").read()
+          m = re.search(r"version\s*=\s*['\"]([^'\"]+)['\"]", text)
+          if not m:
+              raise SystemExit("Could not find version in setup.py")
+          setup_ver = m.group(1)
+          if tag_ver != setup_ver:
+              raise SystemExit(
+                  f"Tag version {tag_ver!r} does not match setup.py version {setup_ver!r}"
+              )
+          print(f"Version check OK: {tag_ver}")
+          EOF
 
       - name: Set up Python
         uses: actions/setup-python@v5

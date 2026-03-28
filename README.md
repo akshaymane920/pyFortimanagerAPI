@@ -26,7 +26,7 @@ git tag v0.2.5   # must match version in setup.py (with leading v)
 git push origin v0.2.5
 ```
 
-GitHub Actions will create a **published** release from that tag and then upload the package to **PyPI** (requires the `PYFORTIMANAGERAPI_TOKEN` repository secret).
+GitHub Actions will create a **published** release from that tag and upload the package to **PyPI** on that same tag push (requires the `PYFORTIMANAGERAPI_TOKEN` repository secret). If you publish a release only from the GitHub UI, the PyPI workflow also runs on `release: published`.
 
 ## Getting Started
 

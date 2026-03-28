@@ -1,5 +1,6 @@
 # When you push a version tag (e.g. v0.2.5), this workflow creates a published GitHub Release.
-# That in turn triggers "Upload Python Package" (release: published) → PyPI upload.
+# PyPI upload is triggered by the same tag push in "Upload Python Package" (not by this release:
+# GitHub does not run follow-up workflows for events caused by the default GITHUB_TOKEN).
 #
 # How to release:
 #   1. Bump version in setup.py (+ CHANGELOG.md as you prefer), commit, push branch.
