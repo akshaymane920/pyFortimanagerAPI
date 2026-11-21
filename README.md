@@ -17,6 +17,17 @@ pip install pyFortiManagerAPI
 
 Release notes and version history: [CHANGELOG.md](CHANGELOG.md).
 
+### Running tests
+
+The test suite mocks the HTTP layer, so no FortiManager is needed:
+
+```shell
+pip install pytest requests urllib3
+python -m pytest
+```
+
+CI runs it on every push and pull request, and the PyPI upload is blocked if it fails.
+
 ### Releasing (maintainers)
 
 Bump `setup.py` and `CHANGELOG.md`, push your branch, then tag and push the tag (the `v` prefix plus version must match `setup.py`):
@@ -42,6 +53,7 @@ fortimngr = pyFortiManagerAPI.FortiManager(host="",
 Required settings:
 - host: Management Ip address of your FortiManager
 - username/password: Specify your credentials to log into the device.
+  If FortiManager rejects the credentials, the first API call raises `pyFortiManagerAPI.FortiManagerLoginError`.
 
 Optional settings:
 - adom: Default is adom=root.
@@ -292,7 +304,7 @@ Add an existing device:
                          username="admin", 
                          password="", 
                          name="FortiGateVM64", 
-                         description=False)
+                         description="")
 ```
 
 or model a device that is to be deployed:

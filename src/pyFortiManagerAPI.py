@@ -15,6 +15,10 @@ from os.path import join, normpath
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
+class FortiManagerLoginError(Exception):
+    """Raised when FortiManager rejects the login request."""
+
+
 class FortiManager:
     """
     This class will include all the methods used for executing the api calls on FortiManager.
@@ -73,11 +77,16 @@ class FortiManager:
                 }
             login = self.session.post(
                 url=self.base_url, json=payload, verify=self.verify)
-            if login.json()["result"][0]["status"]["message"] == "No permission for the resource":
+            body = login.json()
+            status = (body.get("result") or [{}])[0].get("status", {})
+            if status.get("message") == "No permission for the resource":
                 return self.session
-            elif "session" in login.json():
-                self.sessionid = login.json()["session"]
+            elif "session" in body:
+                self.sessionid = body["session"]
                 return self.session
+            self.session = None
+            raise FortiManagerLoginError(
+                f"Login to {self.host} failed: {status.get('message', body)} (code {status.get('code')})")
 
         else:
             return self.session
@@ -87,7 +96,7 @@ class FortiManager:
         Logout from FortiManager
         :return: Response of status code with data in JSON Format
         """
-        session = requests.session()
+        session = self.session if self.session is not None else requests.session()
         payload = \
             {
                 "method": "exec",
@@ -101,6 +110,8 @@ class FortiManager:
             }
         logout = session.post(
             url=self.base_url, json=payload, verify=self.verify)
+        self.session = None
+        self.sessionid = None
         return logout.json()["result"]
 
     # Adoms Methods
@@ -175,7 +186,7 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return get_devices.json()
 
-    def add_device(self, ip_address, username, password, name, description=False):
+    def add_device(self, ip_address, username, password, name, description=""):
         session = self.login()
         payload = \
             {
@@ -485,31 +496,32 @@ class FortiManager:
             url=self.base_url, json=payload, verify=self.verify)
         return add_address_object.json()["result"]
 
-    def add_dynamic_object(self, name, device, subnet, comment=None):
+    def add_dynamic_object(self, name, device, subnet, comment=None, vdom="root"):
         """
         Add per device mapping in address object.
         :param name: name of the address object.
         :param device: name of the device which is to be mapped in this object
         :param subnet: subnet for device that is to be mapped in this object
         :param comment: comment
+        :param vdom: vdom of the device mapping (default=root)
         :return: returns response of the request from FortiManager.
         """
         session = self.login()
         add_obj = self.add_firewall_address_object(
             name, subnet=["0.0.0.0", "255.255.255.255"])
+        mapping = {"_scope": [{"name": f"{device}", "vdom": vdom}], "subnet": subnet}
+        if comment is not None:
+            mapping["comment"] = comment
         payload = {
             "method": "add",
-            "params": [{"url": f"pm/config/adom/root/obj/firewall/address/{name}/dynamic_mapping",
-                        "data": [{"_scope": [{"name": f"{device}", "vdom": "root"}],
-                                  "subnet": subnet,
-                                  "comment": f"{comment}",
-                                  }]}],
+            "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/address/{name}/dynamic_mapping",
+                        "data": [mapping]}],
             "session": self.sessionid}
         add_dynamic_obj = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return [add_obj, add_dynamic_obj.json()["result"]]
 
-    def update_dynamic_object(self, name, device, subnet: list, do="add", comment=None):
+    def update_dynamic_object(self, name, device, subnet: list, do="add", comment=None, vdom="root"):
         """
         Update the per mapping settings of the address object.
         :param name: name of the object that needs to be updated.
@@ -519,18 +531,18 @@ class FortiManager:
         :param comment: add comment if you want.
         :return: return result of the request from FortiManager.
         """
+        methods = {"add": "update", "remove": "delete"}
+        if do not in methods:
+            raise ValueError("do must be 'add' or 'remove'")
         session = self.login()
+        mapping = {"_scope": [{"name": f"{device}", "vdom": vdom}], "subnet": subnet}
+        if comment is not None:
+            mapping["comment"] = comment
         payload = {
-            "params": [{"url": f"pm/config/adom/root/obj/firewall/address/{name}/dynamic_mapping",
-                        "data": [{"_scope": [{"name": f"{device}", "vdom": "root"}],
-                                  "subnet": subnet,
-                                  "comment": f"{comment}",
-                                  }]}],
+            "method": methods[do],
+            "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/address/{name}/dynamic_mapping",
+                        "data": [mapping]}],
             "session": self.sessionid}
-        if do == "add":
-            payload.update(method="update")
-        elif do == "remove":
-            payload.update(method="delete")
         update_dynamic_obj = session.post(
             url=self.base_url, json=payload, verify=self.verify)
         return update_dynamic_obj.json()["result"]
@@ -586,7 +598,7 @@ class FortiManager:
         :param data: You can get the **kwargs parameters with "show_params_for_object_v6_update()" method
         :return: Response of status code with data in JSON Format
         """
-        data = self.make_data(_for="object", **data)
+        data = self.make_data(_for="object6", **data)
         session = self.login()
         payload = \
             {
@@ -760,6 +772,8 @@ class FortiManager:
                     do="remove" will remove the object from address group
         :return: Response of status code with data in JSON Format
         """
+        if do not in ("add", "remove"):
+            raise ValueError("do must be 'add' or 'remove'")
         session = self.login()
         get_addr_group = self.get_address_groups(name=name)
         members = get_addr_group[0]['data']['member']
@@ -795,6 +809,8 @@ class FortiManager:
                     do="remove" will remove the object from address group
         :return: Response of status code with data in JSON Format
         """
+        if do not in ("add", "remove"):
+            raise ValueError("do must be 'add' or 'remove'")
         session = self.login()
         get_addr_v6_group = self.get_address_v6_groups(name=name)
         members = get_addr_v6_group[0]['data']['member']
@@ -897,7 +913,7 @@ class FortiManager:
         """
         url = f"pm/config/global/pkg/{policy_package_name}/global/header/policy"
         if policyid:
-            url = url + str(policyid)
+            url = f"{url}/{policyid}"
         session = self.login()
         payload = {
             "method": "get",
@@ -917,7 +933,7 @@ class FortiManager:
         """
         url = f"pm/config/adom/{self.adom}/obj/global/header/policy"
         if policyid:
-            url = url + str(policyid)
+            url = f"{url}/{policyid}"
         session = self.login()
         payload = {
             "method": "get",
@@ -938,7 +954,7 @@ class FortiManager:
         """
         url = f"pm/config/global/pkg/{policy_package_name}/global/footer/policy"
         if policyid:
-            url = url + str(policyid)
+            url = f"{url}/{policyid}"
         session = self.login()
         payload = {
             "method": "get",
@@ -958,7 +974,7 @@ class FortiManager:
         """
         url = f"pm/config/adom/{self.adom}/obj/global/footer/policy"
         if policyid:
-            url = url + str(policyid)
+            url = f"{url}/{policyid}"
         session = self.login()
         payload = {
             "method": "get",
@@ -992,12 +1008,12 @@ class FortiManager:
         return req.json()["result"]
 
     def get_policies_assigned_to_device(self, device, vdom):
-        session = self.session
+        session = self.login()
         payload = {
             "method": "exec",
             "params": [
                 {"url": "sys/proxy/json",
-                 "data": {"target": [f"adom/root/device/{device}"],
+                 "data": {"target": [f"adom/{self.adom}/device/{device}"],
                           "action": "get",
                           "resource": f"/api/v2/cmdb/firewall/policy/?vdom={vdom}"}}]}
         payload.update(session=self.sessionid)
@@ -1023,13 +1039,12 @@ class FortiManager:
     # Services
     def get_services(self):
         """
-                Get interface details from the devices.
-                :param device: Specify name of the device.
-                """
+        Get all custom firewall services in the current adom.
+        """
         session = self.login()
         payload = \
             {"method": "get",
-             "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/service/custom/Custom_Service_1"}]}
+             "params": [{"url": f"pm/config/adom/{self.adom}/obj/firewall/service/custom"}]}
 
         payload.update(session=self.sessionid)
         services = session.post(url=self.base_url, json=payload, verify=self.verify)
@@ -1037,8 +1052,8 @@ class FortiManager:
 
     def get_service(self, name):
         """
-        Get interface details from the devices.
-        :param name: Specify name of the device.
+        Get a single custom firewall service.
+        :param name: Specify name of the service.
         """
         session = self.login()
         payload = \
@@ -1329,6 +1344,13 @@ class FortiManager:
                 "fqdn": "fqdn",
                 "object_type": "type"
             }
+        object6_maps = \
+            {
+                "comment": "comment",
+                "object_name": "name",
+                "subnet": "ip6",
+                "object_type": "type"
+            }
         policy_maps = \
             {
                 "name": "name",
@@ -1356,8 +1378,12 @@ class FortiManager:
                 if key not in object_maps:
                     raise KeyError(f"Unknown object field {key!r}; see show_params_for_object_update()")
                 data[object_maps[key]] = value
+            elif _for == "object6":
+                if key not in object6_maps:
+                    raise KeyError(f"Unknown object field {key!r}; see show_params_for_object_v6_update()")
+                data[object6_maps[key]] = value
             else:
-                raise ValueError("_for must be 'policy' or 'object'")
+                raise ValueError("_for must be 'policy', 'object' or 'object6'")
 
         return data
 
@@ -1450,7 +1476,11 @@ class FortiManager:
             url=self.base_url, json=body, verify=self.verify)
         return custom_api.json()
 
-    def set_adom(self, adom=None):
+    def set_adom(self, adom):
+        """
+        Switch the adom used by subsequent calls.
+        :param adom: name of the adom
+        """
         self.adom = adom
 
     # Scripts api calls
@@ -1589,7 +1619,7 @@ class FortiManager:
                 "method": "exec",
                 "params": [{
                     "data": {"adom": self.adom,
-                             "scope": {"name": device_name, "vdom": vdom},
+                             "scope": [{"name": device_name, "vdom": vdom}],
                              "script": script_name},
                     "url": f"/dvmdb/adom/{self.adom}/script/execute"}],
                 "session": self.sessionid

@@ -5,6 +5,32 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Test suite (`tests/`, pytest) covering request shape for every API method, using a mocked HTTP session.
+- CI workflow running the tests on Python 3.9–3.13 for pushes and pull requests; PyPI upload now runs tests first.
+- `FortiManagerLoginError`, raised when login fails instead of failing later with `AttributeError`.
+- `vdom` parameter on `add_dynamic_object` / `update_dynamic_object` (default `root`).
+
+### Fixed
+
+- `logout` reuses the logged-in session (proxies/cookies) and clears session state, so a later `login()` works.
+- `get_services` returned only a hard-coded `Custom_Service_1`; it now returns all custom services.
+- Header/footer policy getters built `.../policy5` instead of `.../policy/5` when `policyid` was given.
+- `get_policies_assigned_to_device` crashed if called before login and ignored the configured adom.
+- `add_dynamic_object` / `update_dynamic_object` ignored the configured adom and sent `comment` as the string `"None"`.
+- `update_dynamic_object` / `update_address_group` / `update_address_v6_group` raise `ValueError` on an invalid `do` instead of sending a malformed or no-op request.
+- `update_firewall_address_v6_object(subnet=...)` sent `subnet` instead of the IPv6 field `ip6`.
+- `add_device` sent the description `"False"` when none was given.
+- `run_script_on_single_device` sends `scope` as a list, as the API expects.
+- `set_adom()` with no argument silently set the adom to `None`; the argument is now required.
+
+### Removed
+
+- `/tests` from `.gitignore`, which had been preventing tests from being committed.
+
 ## [0.2.7] - 2026-03-29
 
 ### Fixed

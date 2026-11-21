@@ -3,7 +3,6 @@
 /.venv
 /.idea
 __pycache__
-/tests
 /build
 /dist
 /src/pyFortiManagerAPI.egg-info
